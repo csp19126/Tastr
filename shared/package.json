@@ -1,0 +1,6 @@
+{
+  "name": "tastr-shared",
+  "private": true,
+  "type": "module",
+  "main": "index.ts"
+}
