@@ -19,8 +19,17 @@ export function createApp() {
   app.set('trust proxy', 1); // Railway and most hosts sit behind one proxy
   app.disable('x-powered-by');
   app.use(express.json({ limit: '200kb' }));
-  app.use((_req, res, next) => {
+  app.use((req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
+    // The phone apps don't need this; the web version does. Sign-in is a bearer token, not a
+    // cookie, so letting any site call the API can't act as a signed-in user.
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type, Accept');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    if (req.method === 'OPTIONS') {
+      res.status(204).end();
+      return;
+    }
     next();
   });
 

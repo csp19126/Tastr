@@ -78,15 +78,14 @@ meRoutes.put('/photo', upload.single('photo'), async (req, res) => {
 
 /**
  * "Delete my account and all my data": the account, sessions, reviews, photos (files too),
- * comments, votes, lists, follows and reports go. Places someone added stay for everyone,
- * but no longer say who added them.
+ * comments, votes, lists and follows go. Places someone added stay for everyone, and reports
+ * they filed about other people's content stay for the moderators; both lose any link to them.
  */
 meRoutes.delete('/', async (req, res) => {
   const me = requireUser(req);
   const keys = await tx(async (db) => {
     const photos = await q<{ storage_key: string }>('SELECT storage_key FROM photos WHERE user_id = $1', [me.id], db);
     const u = await one('SELECT photo_key FROM users WHERE id = $1', [me.id], db);
-    await q('DELETE FROM reports WHERE reporter_id = $1', [me.id], db);
     await q('DELETE FROM users WHERE id = $1', [me.id], db); // everything else cascades
     return [...photos.map((p) => p.storage_key), u?.photo_key];
   });

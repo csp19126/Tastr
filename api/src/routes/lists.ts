@@ -175,5 +175,5 @@ sharePageRoutes.get('/:slug', async (req, res) => {
 <body style="font-family:system-ui;max-width:640px;margin:auto;padding:24px;line-height:1.5">
 <h1>${esc(title)}</h1><p>A ${APP_NAME} list by ${esc(list.owner.displayName)} · ${list.places.length} places</p>
 <ul style="padding-left:18px">${items}</ul>
-<p><a href="tastr://lists/shared/${esc(req.params.slug)}">Open in ${APP_NAME}</a></p></body></html>`);
+<p><a href="tastr://shared/${esc(req.params.slug)}">Open in ${APP_NAME}</a></p></body></html>`);
 });

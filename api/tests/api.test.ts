@@ -481,6 +481,9 @@ describe('delete my account', () => {
       [leaver.user.id],
     );
     expect(Number(left.rows[0].n)).toBe(0);
+    // Their report about the place is still there for moderators, just anonymous now.
+    const report = await pool.query(`SELECT reporter_id FROM reports WHERE target_type = 'place' AND target_id = $1`, [place.id]);
+    expect(report.rows).toEqual([{ reporter_id: null }]);
   });
 });
 
@@ -491,5 +494,8 @@ describe('the server', () => {
     expect((await request(app).get('/media/../../etc/passwd')).status).toBe(404);
     const junk = await request(app).post('/api/auth/login').set('Content-Type', 'application/json').send('{not json');
     expect(junk.status).toBe(400);
+    const pre = await request(app).options('/api/places').set('Origin', 'http://localhost:8081');
+    expect(pre.status).toBe(204);
+    expect(pre.headers['access-control-allow-headers']).toContain('Authorization');
   });
 });
