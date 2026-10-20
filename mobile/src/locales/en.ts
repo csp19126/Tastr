@@ -105,7 +105,6 @@ const en = {
     dessert: 'Dessert',
   },
   tags: {
-    dog_friendly: 'Dog-friendly',
     vegetarian: 'Vegetarian options',
     halal: 'Halal',
     aircon: 'Aircon',

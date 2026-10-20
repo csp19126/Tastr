@@ -106,7 +106,6 @@ const vi: Translation = {
     dessert: 'Tráng miệng',
   },
   tags: {
-    dog_friendly: 'Cho mang chó',
     vegetarian: 'Có món chay',
     halal: 'Halal',
     aircon: 'Có máy lạnh',

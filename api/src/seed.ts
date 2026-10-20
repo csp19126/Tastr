@@ -29,7 +29,7 @@ const REVIEWS: [number, number, string, string[], [string, boolean][], number][]
   [1, 5, 'Frog mì Quảng. Yes, frog. Trust the process. Rich broth, peanuts, crackers, the lot. Would bring my mum.', ['good_for_groups'], [['Mì Quảng ếch', true], ['Trà đá', true]], 1],
   [2, 4, 'Plastic stools, cold beer, snails cooked six ways. The coconut ones are the move. Go hungry, go late.', ['late_night', 'outdoor_seating', 'good_for_groups'], [['Ốc hương xào bơ tỏi', true], ['Ốc len xào dừa', true]], 2],
   [3, 3, 'The view is doing a lot of heavy lifting. Cocktails are fine, prices are not. Go at sunset, have one, leave.', ['rooftop', 'happy_hour', 'card_accepted', 'english_menu', 'live_music'], [['Passionfruit mojito', false]], 3],
-  [4, 4, 'Salt coffee that actually tastes like coffee. Aircon is a mercy at 2pm. Wifi strong enough for nomads.', ['aircon', 'card_accepted', 'dog_friendly'], [['Cà phê muối', true]], 1],
+  [4, 4, 'Salt coffee that actually tastes like coffee. Aircon is a mercy at 2pm. Wifi strong enough for nomads.', ['aircon', 'card_accepted'], [['Cà phê muối', true]], 1],
   [5, 5, 'Chicken rice with that turmeric glow. Papaya salad on the side is not optional. Queue at noon, it is worth it.', ['good_for_groups'], [['Cơm gà xé', true]], 1],
   [6, 4, 'Cao lầu with chewy noodles and crispy bits. No sign, no hours, just a woman and a pot. Find her.', [], [['Cao lầu', true]], 1],
   [7, 3, 'Fun, loud, cheap-ish buckets. Not a place for conversation. Happy hour 5 to 7 is the only sensible time.', ['happy_hour', 'live_music', 'late_night', 'english_menu'], [], 2],

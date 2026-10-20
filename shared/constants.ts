@@ -15,7 +15,6 @@ export const CATEGORIES = [
 export type Category = (typeof CATEGORIES)[number];
 
 export const TAGS = [
-  'dog_friendly',
   'vegetarian',
   'halal',
   'aircon',
