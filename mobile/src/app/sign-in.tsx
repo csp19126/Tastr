@@ -5,7 +5,7 @@ import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { errorText } from '@/components/errors';
-import { Mascot } from '@/components/mascot';
+import { Logo } from '@/components/states';
 import { Button, Field, Screen, T } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
 import { space, useColors } from '@/lib/theme';
@@ -38,7 +38,7 @@ export default function SignIn() {
   return (
     <Screen scroll>
       <View style={{ alignItems: 'center', gap: space.m, marginTop: space.l }}>
-        <Mascot mood="happy" size={110} />
+        <Logo size={110} />
         <T v="hero" style={{ textAlign: 'center' }}>{t('auth.welcomeTitle')}</T>
         <T v="dim" style={{ textAlign: 'center' }}>{t('auth.welcomeBody')}</T>
       </View>

@@ -6,7 +6,7 @@ import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { errorText } from '@/components/errors';
-import { EmptyState, Loading } from '@/components/mascot';
+import { EmptyState, Loading } from '@/components/states';
 import { Button, Card, Chip, Field, ListRow, Row, Screen, Section, T } from '@/components/ui';
 import { get, mediaUri, post } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -95,7 +95,7 @@ export default function Admin() {
         ) : reports.data?.items.length ? (
           reports.data.items.map((item) => <ReportCard key={`${item.targetType}-${item.targetId}`} item={item} onDone={refresh} />)
         ) : (
-          <EmptyState mood="happy" title={t('admin.noReports')} />
+          <EmptyState icon="🍜" title={t('admin.noReports')} />
         )
       ) : (
         <Section title={t('admin.users')}>

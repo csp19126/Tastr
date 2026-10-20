@@ -53,7 +53,7 @@ export async function serializeReviews(rows: any[], viewerId?: number) {
     id: r.id,
     place: { id: r.place_id, name: r.place_name, category: r.place_category, city: r.place_city },
     author: publicUser({ id: r.user_id, display_name: r.display_name, photo_key: r.photo_key, home_city: r.home_city }),
-    paws: r.paws,
+    rating: r.rating,
     ratings: { taste: r.taste, value: r.value, service: r.service, vibe: r.vibe, cleanliness: r.cleanliness },
     body: r.body,
     pricePaid: r.price_paid,

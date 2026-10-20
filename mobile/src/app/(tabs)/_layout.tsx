@@ -28,7 +28,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="feed" options={{ title: t('tabs.feed'), tabBarIcon: icon('📰'), tabBarButtonTestID: 'tab-feed' }} />
       <Tabs.Screen name="add" options={{ title: t('tabs.add'), tabBarIcon: icon('📸'), tabBarButtonTestID: 'tab-add' }} />
       <Tabs.Screen name="lists" options={{ title: t('tabs.lists'), tabBarIcon: icon('🔖'), tabBarButtonTestID: 'tab-lists' }} />
-      <Tabs.Screen name="me" options={{ title: t('tabs.me'), tabBarIcon: icon('🐶'), tabBarButtonTestID: 'tab-me' }} />
+      <Tabs.Screen name="me" options={{ title: t('tabs.me'), tabBarIcon: icon('👤'), tabBarButtonTestID: 'tab-me' }} />
     </Tabs>
   );
 }

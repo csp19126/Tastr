@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { PlaceCard } from '@/components/cards';
 import { errorText } from '@/components/errors';
-import { EmptyState, Loading } from '@/components/mascot';
+import { EmptyState, Loading } from '@/components/states';
 import { Screen, T } from '@/components/ui';
 import { get } from '@/lib/api';
 import { listName } from '@/lib/lists';

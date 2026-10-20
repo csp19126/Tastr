@@ -2,7 +2,7 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { APP_NAME } from '@shared';
-import { Loading, Mascot } from '@/components/mascot';
+import { Loading, Logo } from '@/components/states';
 import { Card, ListRow, Screen, T } from '@/components/ui';
 import { APP_VERSION } from '@/lib/config';
 import { useContent } from '@/lib/content';
@@ -24,7 +24,7 @@ export default function About() {
   return (
     <Screen scroll>
       <View style={{ alignItems: 'center', gap: space.s }}>
-        <Mascot mood="happy" size={96} />
+        <Logo size={96} />
         <T v="hero">{APP_NAME}</T>
         <T v="dim">{t('settings.version', { version: APP_VERSION })}</T>
       </View>

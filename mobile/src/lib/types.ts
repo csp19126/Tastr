@@ -31,7 +31,7 @@ export type PlaceCard = {
   neighbourhood: string;
   city: CityId;
   coverUrl: string | null;
-  paws: number | null;
+  rating: number | null;
   reviewCount: number;
   priceBracket: number | null;
   tags: Tag[];
@@ -61,7 +61,7 @@ export type Review = {
   id: number;
   place: { id: number; name: string; category: Category; city: CityId };
   author: PublicUser;
-  paws: number;
+  rating: number;
   ratings: Record<SubRating, number | null>;
   body: string;
   pricePaid: number | null;
@@ -107,7 +107,7 @@ export type List = {
 
 export type ListPlace = Pick<
   PlaceCard,
-  'id' | 'name' | 'category' | 'city' | 'neighbourhood' | 'lat' | 'lng' | 'paws' | 'reviewCount' | 'priceBracket' | 'coverUrl' | 'openNow'
+  'id' | 'name' | 'category' | 'city' | 'neighbourhood' | 'lat' | 'lng' | 'rating' | 'reviewCount' | 'priceBracket' | 'coverUrl' | 'openNow'
 > & { note: string; addedAt: string };
 
 export type ListDetail = List & { places: ListPlace[]; owner?: { id: number; displayName: string } };

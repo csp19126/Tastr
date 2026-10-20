@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { errorText } from '@/components/errors';
-import { Loading } from '@/components/mascot';
+import { Loading } from '@/components/states';
 import { Button, Card, Chip, Field, Row, Screen, T } from '@/components/ui';
 import { get, put } from '@/lib/api';
 import type { ContentKey } from '@/lib/content';

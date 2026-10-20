@@ -8,7 +8,7 @@ import { cityName, formatDate } from '@/lib/format';
 import { space } from '@/lib/theme';
 import type { Review, UserProfile } from '@/lib/types';
 import { ReviewCard } from './cards';
-import { EmptyState, Loading } from './mascot';
+import { EmptyState, Loading } from './states';
 import { Avatar, Button, Row, T } from './ui';
 
 /** The top of a profile page, shared by "Me" and other people's pages. */
@@ -41,7 +41,7 @@ export function UserReviews({ userId }: { userId: number }) {
   });
   if (q.isLoading) return <Loading />;
   const reviews = q.data?.pages.flatMap((p) => p.reviews) ?? [];
-  if (reviews.length === 0) return <EmptyState mood="sleep" title={t('profile.noReviews')} />;
+  if (reviews.length === 0) return <EmptyState icon="🍽️" title={t('profile.noReviews')} />;
   return (
     <View style={{ gap: space.m }}>
       {reviews.map((r) => (

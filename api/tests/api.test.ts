@@ -115,7 +115,7 @@ describe('places', () => {
       name: 'Bánh Mì Cô Hai', category: 'street_food', lat: 15.877, lng: 108.326, city: 'hoi_an',
       openingHours: { mon: [['06:00', '11:00']] }, zalo: '0905 000 000',
     });
-    expect(p).toMatchObject({ name: 'Bánh Mì Cô Hai', category: 'street_food', city: 'hoi_an', reviewCount: 0, paws: null, zalo: '0905 000 000' });
+    expect(p).toMatchObject({ name: 'Bánh Mì Cô Hai', category: 'street_food', city: 'hoi_an', reviewCount: 0, rating: null, zalo: '0905 000 000' });
     expect(p.openingHours).toEqual({ mon: [['06:00', '11:00']] });
   });
 
@@ -150,7 +150,7 @@ describe('reviews', () => {
     const place = await addPlace(auth, { name: 'Mì Quảng Bà Mua' });
     const [p1, p2, dishPhoto] = [await uploadPhoto(auth), await uploadPhoto(auth), await uploadPhoto(auth)];
     const review = await addReview(auth, place.id, {
-      paws: 5,
+      rating: 5,
       ratings: { taste: 5, value: 5, service: 3, vibe: 4, cleanliness: 4 },
       pricePaid: 45000,
       priceBracket: 1,
@@ -163,7 +163,7 @@ describe('reviews', () => {
       ],
     });
     expect(review).toMatchObject({
-      paws: 5,
+      rating: 5,
       ratings: { taste: 5, value: 5, service: 3, vibe: 4, cleanliness: 4 },
       pricePaid: 45000, currency: 'VND', priceBracket: 1, sponsored: false, visitedOn: '2026-10-18',
       tags: ['aircon', 'good_for_groups'],
@@ -175,7 +175,7 @@ describe('reviews', () => {
     expect(review.dishes[1]).toMatchObject({ name: 'Trà đá', thumbsUp: false, photo: null });
 
     const detail = (await request(app).get(`/api/places/${place.id}`)).body;
-    expect(detail).toMatchObject({ reviewCount: 1, paws: 5, priceBracket: 1, ratings: { taste: 5, service: 3 } });
+    expect(detail).toMatchObject({ reviewCount: 1, rating: 5, priceBracket: 1, ratings: { taste: 5, service: 3 } });
     expect(detail.popularDishes[0]).toMatchObject({ name: 'Mì Quảng gà', mentions: 1, thumbsUp: 1 });
     expect(detail.photos).toHaveLength(3);
     expect(detail.coverUrl).toMatch(/\/media\//);
@@ -184,7 +184,7 @@ describe('reviews', () => {
   it('insists on the sponsored question being answered, and labels sponsored reviews', async () => {
     const { auth } = await signUp();
     const place = await addPlace(auth);
-    const missing = await request(app).post('/api/reviews').set(auth).send({ placeId: place.id, paws: 4, body: goodBody });
+    const missing = await request(app).post('/api/reviews').set(auth).send({ placeId: place.id, rating: 4, body: goodBody });
     expect(missing.status).toBe(400);
     const r = await addReview(auth, place.id, { sponsored: true });
     expect(r.sponsored).toBe(true);
@@ -195,7 +195,7 @@ describe('reviews', () => {
     const b = await signUp();
     const place = await addPlace(a.auth);
     const photo = await uploadPhoto(a.auth);
-    const res = await request(app).post('/api/reviews').set(b.auth).send({ placeId: place.id, paws: 3, body: goodBody, sponsored: false, photoIds: [photo.id] });
+    const res = await request(app).post('/api/reviews').set(b.auth).send({ placeId: place.id, rating: 3, body: goodBody, sponsored: false, photoIds: [photo.id] });
     expect(res.status).toBe(400);
     expect(res.body.error).toBe('bad_photo');
   });
@@ -203,9 +203,9 @@ describe('reviews', () => {
   it('caps photos at 10 and asks for a real review, not one word', async () => {
     const { auth } = await signUp();
     const place = await addPlace(auth);
-    const tooMany = await request(app).post('/api/reviews').set(auth).send({ placeId: place.id, paws: 3, body: goodBody, sponsored: false, photoIds: Array.from({ length: 11 }, (_, i) => i + 1) });
+    const tooMany = await request(app).post('/api/reviews').set(auth).send({ placeId: place.id, rating: 3, body: goodBody, sponsored: false, photoIds: Array.from({ length: 11 }, (_, i) => i + 1) });
     expect(tooMany.status).toBe(400);
-    const short = await request(app).post('/api/reviews').set(auth).send({ placeId: place.id, paws: 3, body: 'yum', sponsored: false });
+    const short = await request(app).post('/api/reviews').set(auth).send({ placeId: place.id, rating: 3, body: 'yum', sponsored: false });
     expect(short.status).toBe(400);
   });
 
@@ -213,12 +213,12 @@ describe('reviews', () => {
     const { auth } = await signUp();
     const place = await addPlace(auth);
     await addReview(auth, place.id);
-    const again = await request(app).post('/api/reviews').set(auth).send({ placeId: place.id, paws: 1, body: goodBody, sponsored: false });
+    const again = await request(app).post('/api/reviews').set(auth).send({ placeId: place.id, rating: 1, body: goodBody, sponsored: false });
     expect(again.status).toBe(409);
     expect(again.body.error).toBe('reviewed_recently');
 
     for (let i = 0; i < 9; i++) await addReview(auth, (await addPlace(auth)).id);
-    const eleventh = await request(app).post('/api/reviews').set(auth).send({ placeId: (await addPlace(auth)).id, paws: 3, body: goodBody, sponsored: false });
+    const eleventh = await request(app).post('/api/reviews').set(auth).send({ placeId: (await addPlace(auth)).id, rating: 3, body: goodBody, sponsored: false });
     expect(eleventh.status).toBe(429);
     expect(eleventh.body.error).toBe('too_many_reviews');
   });
@@ -232,14 +232,14 @@ describe('reviews', () => {
     const dropFile = path.join(uploadDir, path.basename(drop.url));
     expect(fs.existsSync(dropFile)).toBe(true);
 
-    const edited = await request(app).put(`/api/reviews/${r.id}`).set(auth).send({ paws: 2, body: `${goodBody} Went back. Not the same.`, sponsored: false, photoIds: [keep.id] });
+    const edited = await request(app).put(`/api/reviews/${r.id}`).set(auth).send({ rating: 2, body: `${goodBody} Went back. Not the same.`, sponsored: false, photoIds: [keep.id] });
     expect(edited.status).toBe(200);
-    expect(edited.body.paws).toBe(2);
+    expect(edited.body.rating).toBe(2);
     expect(edited.body.photos.map((p: any) => p.id)).toEqual([keep.id]);
     expect(fs.existsSync(dropFile)).toBe(false);
 
     const other = await signUp();
-    expect((await request(app).put(`/api/reviews/${r.id}`).set(other.auth).send({ paws: 5, body: goodBody, sponsored: false })).status).toBe(404);
+    expect((await request(app).put(`/api/reviews/${r.id}`).set(other.auth).send({ rating: 5, body: goodBody, sponsored: false })).status).toBe(404);
   });
 
   it('counts helpful votes once each, never your own', async () => {
@@ -280,14 +280,14 @@ describe('discover', () => {
     const mk = async (name: string, over: Record<string, unknown>) => (await addPlace(auth, { name, ...over })).id;
     ids = {
       banhmi: await mk('Bánh Mì Phượng Test', { category: 'street_food', lat: base.lat + 0.001, lng: base.lng, neighbourhood: 'Phố Cổ' }),
-      bar: await mk('Rooftop Ruff', { category: 'rooftop', lat: base.lat + 0.01, lng: base.lng, openingHours: { mon: [['00:00', '23:59']], tue: [['00:00', '23:59']], wed: [['00:00', '23:59']], thu: [['00:00', '23:59']], fri: [['00:00', '23:59']], sat: [['00:00', '23:59']], sun: [['00:00', '23:59']] } }),
+      bar: await mk('Rooftop Rumba', { category: 'rooftop', lat: base.lat + 0.01, lng: base.lng, openingHours: { mon: [['00:00', '23:59']], tue: [['00:00', '23:59']], wed: [['00:00', '23:59']], thu: [['00:00', '23:59']], fri: [['00:00', '23:59']], sat: [['00:00', '23:59']], sun: [['00:00', '23:59']] } }),
       cafe: await mk('Cà Phê Muối Chú Long', { category: 'cafe', lat: base.lat + 0.05, lng: base.lng, openingHours: { mon: [['05:00', '05:01']] } }),
       far: await mk('Far Away Pizza', { category: 'restaurant', lat: base.lat + 1, lng: base.lng }),
     };
-    await addReview(auth, ids.banhmi, { paws: 5, priceBracket: 1, tags: ['late_night'], dishes: [{ name: 'Bánh mì thập cẩm', thumbsUp: true }] });
-    await addReview(other.auth, ids.banhmi, { paws: 4, priceBracket: 1 });
-    await addReview(auth, ids.bar, { paws: 3, priceBracket: 3, tags: ['live_music', 'happy_hour'], dishes: [{ name: 'Bún chả', thumbsUp: true }] });
-    await addReview(auth, ids.cafe, { paws: 4, priceBracket: 1, tags: ['aircon'] });
+    await addReview(auth, ids.banhmi, { rating: 5, priceBracket: 1, tags: ['late_night'], dishes: [{ name: 'Bánh mì thập cẩm', thumbsUp: true }] });
+    await addReview(other.auth, ids.banhmi, { rating: 4, priceBracket: 1 });
+    await addReview(auth, ids.bar, { rating: 3, priceBracket: 3, tags: ['live_music', 'happy_hour'], dishes: [{ name: 'Bún chả', thumbsUp: true }] });
+    await addReview(auth, ids.cafe, { rating: 4, priceBracket: 1, tags: ['aircon'] });
   });
 
   const find = (query: Record<string, unknown>) => request(app).get('/api/places').query(query);
@@ -295,9 +295,9 @@ describe('discover', () => {
 
   it('lists places near me, closest first, within a radius', async () => {
     const res = await find({ ...base, radiusKm: 10 });
-    expect(names(res)).toEqual(['Bánh Mì Phượng Test', 'Rooftop Ruff', 'Cà Phê Muối Chú Long']);
+    expect(names(res)).toEqual(['Bánh Mì Phượng Test', 'Rooftop Rumba', 'Cà Phê Muối Chú Long']);
     expect(res.body.places[0].distanceKm).toBeCloseTo(0.11, 1);
-    expect(res.body.places[0]).toMatchObject({ paws: 4.5, reviewCount: 2, priceBracket: 1 });
+    expect(res.body.places[0]).toMatchObject({ rating: 4.5, reviewCount: 2, priceBracket: 1 });
   });
 
   it('searches with or without Vietnamese accents', async () => {
@@ -308,19 +308,19 @@ describe('discover', () => {
   });
 
   it('finds places by a dish someone reviewed there', async () => {
-    expect(names(await find({ ...base, radiusKm: 100, q: 'bun cha' }))).toEqual(['Rooftop Ruff']);
+    expect(names(await find({ ...base, radiusKm: 100, q: 'bun cha' }))).toEqual(['Rooftop Rumba']);
     expect(names(await find({ ...base, radiusKm: 100, q: 'thap cam' }))).toEqual(['Bánh Mì Phượng Test']);
   });
 
-  it('filters by category, price, paws, tags and open now', async () => {
+  it('filters by category, price, rating, tags and open now', async () => {
     const near = { ...base, radiusKm: 100 };
-    expect(names(await find({ ...near, category: 'rooftop,cafe' }))).toEqual(['Rooftop Ruff', 'Cà Phê Muối Chú Long']);
+    expect(names(await find({ ...near, category: 'rooftop,cafe' }))).toEqual(['Rooftop Rumba', 'Cà Phê Muối Chú Long']);
     expect(names(await find({ ...near, price: '1' }))).toEqual(['Bánh Mì Phượng Test', 'Cà Phê Muối Chú Long']);
-    expect(names(await find({ ...near, minPaws: 4.5 }))).toEqual(['Bánh Mì Phượng Test']);
-    expect(names(await find({ ...near, tags: 'live_music,happy_hour' }))).toEqual(['Rooftop Ruff']);
+    expect(names(await find({ ...near, minRating: 4.5 }))).toEqual(['Bánh Mì Phượng Test']);
+    expect(names(await find({ ...near, tags: 'live_music,happy_hour' }))).toEqual(['Rooftop Rumba']);
     expect(names(await find({ ...near, tags: 'live_music,aircon' }))).toEqual([]);
-    expect(names(await find({ ...near, openNow: 'true' }))).toEqual(['Rooftop Ruff']); // open 24/7; the others are unknown or shut
-    expect(names(await find({ ...near, sort: 'paws' })).slice(0, 2)).toEqual(['Bánh Mì Phượng Test', 'Cà Phê Muối Chú Long']);
+    expect(names(await find({ ...near, openNow: 'true' }))).toEqual(['Rooftop Rumba']); // open 24/7; the others are unknown or shut
+    expect(names(await find({ ...near, sort: 'rating' })).slice(0, 2)).toEqual(['Bánh Mì Phượng Test', 'Cà Phê Muối Chú Long']);
   });
 });
 
@@ -398,9 +398,9 @@ describe('trust and safety', () => {
     const spammer = await signUp();
     const reporter = await signUp();
     const place = await addPlace(reporter.auth, { name: 'Honest Noodles' });
-    await addReview(reporter.auth, place.id, { paws: 4 });
-    const fake = await addReview(spammer.auth, place.id, { paws: 1, body: 'Terrible terrible terrible, go to my cousin’s shop instead!!!' });
-    expect((await request(app).get(`/api/places/${place.id}`)).body.paws).toBe(2.5);
+    await addReview(reporter.auth, place.id, { rating: 4 });
+    const fake = await addReview(spammer.auth, place.id, { rating: 1, body: 'Terrible terrible terrible, go to my cousin’s shop instead!!!' });
+    expect((await request(app).get(`/api/places/${place.id}`)).body.rating).toBe(2.5);
 
     // Normal users can't see the admin screen.
     expect((await request(app).get('/api/admin/reports').set(reporter.auth)).status).toBe(403);
@@ -418,13 +418,13 @@ describe('trust and safety', () => {
     expect(resolved.status).toBe(200);
 
     // The fake review no longer counts, the spammer is signed out and can't post.
-    expect((await request(app).get(`/api/places/${place.id}`)).body).toMatchObject({ paws: 4, reviewCount: 1 });
+    expect((await request(app).get(`/api/places/${place.id}`)).body).toMatchObject({ rating: 4, reviewCount: 1 });
     expect((await request(app).get(`/api/reviews/${fake.id}`)).status).toBe(404);
     expect((await request(app).get('/api/me').set(spammer.auth)).status).toBe(401);
     const back = await request(app).post('/api/auth/login').send({ email: spammer.user.email, password: 'correct horse' });
     expect(back.body.user.banned).toBe(true);
     const banned = { Authorization: `Bearer ${back.body.token}` };
-    const tryPost = await request(app).post('/api/reviews').set(banned).send({ placeId: place.id, paws: 1, body: goodBody, sponsored: false });
+    const tryPost = await request(app).post('/api/reviews').set(banned).send({ placeId: place.id, rating: 1, body: goodBody, sponsored: false });
     expect(tryPost.status).toBe(403);
 
     expect((await request(app).get('/api/admin/reports').set(admin.auth)).body.items.find((i: any) => i.targetId === fake.id)).toBeUndefined();

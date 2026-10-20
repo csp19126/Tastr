@@ -5,20 +5,21 @@ import { SUB_RATINGS, type SubRating } from '@shared';
 import { space, useColors } from '@/lib/theme';
 import { Row, T } from './ui';
 
-const PAW = '🐾';
+// The rating symbol, in one place. Swap it here if the brand moves to something else.
+const STAR = '★';
 
-/** "4.5 🐾🐾🐾🐾🐾" with the unearned paws faded. */
-export function Paws({ value, size = 14, showNumber = true, count }: { value: number | null | undefined; size?: number; showNumber?: boolean; count?: number }) {
+/** "4.5 ★★★★★" with the unearned stars greyed out. */
+export function Stars({ value, size = 14, showNumber = true, count }: { value: number | null | undefined; size?: number; showNumber?: boolean; count?: number }) {
   const { t } = useTranslation();
   const c = useColors();
-  if (value == null) return <T v="dim">{t('paws.none')}</T>;
+  if (value == null) return <T v="dim">{t('rating.none')}</T>;
   const full = Math.round(value);
   return (
-    <Row gap={6} >
+    <Row gap={6}>
       {showNumber ? <Text style={{ fontWeight: '800', color: c.text, fontSize: size + 1 }}>{Number.isInteger(value) ? value : value.toFixed(1)}</Text> : null}
-      <View style={{ flexDirection: 'row' }} accessible accessibilityLabel={t('paws.outOf', { n: value })}>
+      <View style={{ flexDirection: 'row' }} accessible accessibilityLabel={t('rating.outOf', { n: value })}>
         {[1, 2, 3, 4, 5].map((n) => (
-          <Text key={n} style={{ fontSize: size, opacity: n <= full ? 1 : 0.18 }}>{PAW}</Text>
+          <Text key={n} style={{ fontSize: size, color: n <= full ? c.star : c.line }}>{STAR}</Text>
         ))}
       </View>
       {count != null ? <T v="dim">({count})</T> : null}
@@ -26,8 +27,8 @@ export function Paws({ value, size = 14, showNumber = true, count }: { value: nu
   );
 }
 
-/** Big tappable paws for the overall rating, with the verdict underneath. */
-export function PawsInput({ value, onChange }: { value: number | null; onChange: (n: number) => void }) {
+/** Big tappable stars for the overall rating, with the verdict underneath. */
+export function RatingInput({ value, onChange }: { value: number | null; onChange: (n: number) => void }) {
   const { t } = useTranslation();
   const c = useColors();
   return (
@@ -36,18 +37,18 @@ export function PawsInput({ value, onChange }: { value: number | null; onChange:
         {[1, 2, 3, 4, 5].map((n) => (
           <Pressable
             key={n}
-            testID={`paw-${n}`}
+            testID={`star-${n}`}
             accessibilityRole="button"
-            accessibilityLabel={`${n} – ${t(`paws.${n}` as 'paws.1')}`}
+            accessibilityLabel={`${n} – ${t(`rating.${n}` as 'rating.1')}`}
             onPress={() => onChange(n)}
             hitSlop={6}
             style={({ pressed }) => ({ transform: [{ scale: pressed ? 0.9 : value === n ? 1.15 : 1 }] })}>
-            <Text style={{ fontSize: 40, opacity: value != null && n <= value ? 1 : 0.2 }}>{PAW}</Text>
+            <Text style={{ fontSize: 44, color: value != null && n <= value ? c.star : c.line }}>{STAR}</Text>
           </Pressable>
         ))}
       </View>
       <T v="bold" style={{ color: value ? c.primary : c.textDim, minHeight: 22 }}>
-        {value ? t(`paws.${value}` as 'paws.1') : ' '}
+        {value ? t(`rating.${value}` as 'rating.1') : ' '}
       </T>
     </View>
   );
@@ -70,7 +71,7 @@ function Dots({ value, onChange, label }: { value?: number; onChange: (n?: numbe
             borderRadius: 15,
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: value != null && n <= value ? c.paw : c.cardAlt,
+            backgroundColor: value != null && n <= value ? c.star : c.cardAlt,
           }}>
           <Text style={{ fontSize: 12, fontWeight: '800', color: value != null && n <= value ? '#fff' : c.textDim }}>{n}</Text>
         </Pressable>
@@ -109,7 +110,7 @@ export function SubRatingsBars({ ratings }: { ratings: Partial<Record<SubRating,
         <Row key={k}>
           <T v="small" style={{ width: 96 }}>{t(`ratings.${k}`)}</T>
           <View style={{ flex: 1, height: 8, borderRadius: 4, backgroundColor: c.cardAlt, overflow: 'hidden' }}>
-            <View style={{ width: `${((ratings[k] ?? 0) / 5) * 100}%`, height: 8, backgroundColor: c.paw }} />
+            <View style={{ width: `${((ratings[k] ?? 0) / 5) * 100}%`, height: 8, backgroundColor: c.star }} />
           </View>
           <T v="small" style={{ width: 28, textAlign: 'right', fontWeight: '700' }}>{(ratings[k] ?? 0).toFixed(1)}</T>
         </Row>

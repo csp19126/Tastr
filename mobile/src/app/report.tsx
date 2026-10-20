@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { REPORT_REASONS, REPORT_TARGETS, type ReportReason, type ReportTarget } from '@shared';
 import { errorText } from '@/components/errors';
-import { EmptyState } from '@/components/mascot';
+import { EmptyState } from '@/components/states';
 import { Button, Field, ListRow, Screen, Section, T } from '@/components/ui';
 import { post } from '@/lib/api';
 
@@ -22,7 +22,7 @@ export default function Report() {
   if (sent) {
     return (
       <Screen>
-        <EmptyState mood="happy" title={t('report.thanks')} action={<Button title={t('common.close')} onPress={() => router.back()} />} />
+        <EmptyState icon="🍜" title={t('report.thanks')} action={<Button title={t('common.close')} onPress={() => router.back()} />} />
       </Screen>
     );
   }

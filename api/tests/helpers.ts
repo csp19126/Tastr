@@ -43,7 +43,7 @@ export async function addReview(auth: Record<string, string>, placeId: number, o
   const res = await request(app)
     .post('/api/reviews')
     .set(auth)
-    .send({ placeId, paws: 4, body: goodBody, sponsored: false, ...over });
+    .send({ placeId, rating: 4, body: goodBody, sponsored: false, ...over });
   if (res.status !== 201) throw new Error(`add review failed: ${res.status} ${JSON.stringify(res.body)}`);
   return res.body;
 }

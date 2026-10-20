@@ -7,7 +7,7 @@ import type { Point } from '@/lib/location';
 import { useColors } from '@/lib/theme';
 import type { PlaceCard } from '@/lib/types';
 import { categoryIcon } from './cards';
-import { Paws } from './paws';
+import { Stars } from './rating';
 import { T } from './ui';
 
 /** Places on a real map. Tap a pin for the name, tap the bubble to open the place. */
@@ -26,7 +26,7 @@ export function PlacesMap({ places, centre, showsUser }: { places: PlaceCard[]; 
           <Callout onPress={() => router.push(`/place/${p.id}`)}>
             <View style={{ maxWidth: 220, padding: 4, gap: 2 }}>
               <T v="bold" style={{ color: '#2B1D14' }}>{categoryIcon(p.category)} {p.name}</T>
-              <Paws value={p.paws} size={12} />
+              <Stars value={p.rating} size={12} />
             </View>
           </Callout>
         </Marker>

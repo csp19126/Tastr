@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { categoryIcon, OpenBadge, ReviewCard } from '@/components/cards';
 import { errorText } from '@/components/errors';
 import { HoursTable } from '@/components/hours';
-import { EmptyState, Loading } from '@/components/mascot';
-import { Paws, SubRatingsBars } from '@/components/paws';
+import { EmptyState, Loading } from '@/components/states';
+import { Stars, SubRatingsBars } from '@/components/rating';
 import { Button, Card, Chip, ChipRow, Row, Screen, Section, T } from '@/components/ui';
 import { get, mediaUri } from '@/lib/api';
 import { cityName, priceBand } from '@/lib/format';
@@ -62,7 +62,7 @@ export default function PlaceScreen() {
             <T v="dim">· {cityName(p.city)}</T>
           </Row>
           <Row style={{ flexWrap: 'wrap' }} gap={space.m}>
-            <Paws value={p.paws} size={18} />
+            <Stars value={p.rating} size={18} />
             <T v="dim">{t('place.reviews', { count: p.reviewCount })}</T>
             {p.priceBracket ? <T v="dim">{priceBand(p.priceBracket)}</T> : null}
             <OpenBadge open={p.openNow} />
@@ -146,7 +146,7 @@ export default function PlaceScreen() {
           ) : reviews.data?.reviews.length ? (
             reviews.data.reviews.map((r) => <ReviewCard key={r.id} review={r} showPlace={false} />)
           ) : (
-            <EmptyState mood="happy" title={t('place.noReviewsTitle')} body={t('place.noReviewsBody')} />
+            <EmptyState icon="🍜" title={t('place.noReviewsTitle')} body={t('place.noReviewsBody')} />
           )}
         </Section>
 

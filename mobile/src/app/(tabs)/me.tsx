@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
-import { EmptyState, Loading } from '@/components/mascot';
+import { EmptyState, Loading } from '@/components/states';
 import { ProfileHeader, UserReviews } from '@/components/profile';
 import { Button, ListRow, Row, Screen } from '@/components/ui';
 import { get } from '@/lib/api';
@@ -17,9 +17,9 @@ export default function MeTab() {
   if (!user) {
     return (
       <Screen scroll>
-        <EmptyState mood="happy" title={t('auth.welcomeTitle')} body={t('auth.welcomeBody')} action={<Button testID="me-sign-in" title={t('common.signIn')} onPress={() => router.push('/sign-in')} />} />
+        <EmptyState icon="🍜" title={t('auth.welcomeTitle')} body={t('auth.welcomeBody')} action={<Button testID="me-sign-in" title={t('common.signIn')} onPress={() => router.push('/sign-in')} />} />
         <ListRow title={`⚙️ ${t('settings.title')}`} onPress={() => router.push('/settings')} />
-        <ListRow title={`🐶 ${t('settings.about')}`} onPress={() => router.push('/about')} />
+        <ListRow title={`ℹ️ ${t('settings.about')}`} onPress={() => router.push('/about')} />
       </Screen>
     );
   }

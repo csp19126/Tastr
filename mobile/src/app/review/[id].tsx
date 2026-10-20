@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ReviewCard } from '@/components/cards';
 import { errorText } from '@/components/errors';
-import { EmptyState, Loading, Mascot } from '@/components/mascot';
+import { EmptyState, Loading } from '@/components/states';
 import { Avatar, Button, Card, Field, Row, Screen, Section, T } from '@/components/ui';
 import { del, get, post } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -69,7 +69,7 @@ export default function ReviewScreen() {
     <Screen scroll>
       {posted ? (
         <Row style={{ justifyContent: 'center' }}>
-          <Mascot mood="happy" size={56} />
+          <T style={{ fontSize: 40 }}>🎉</T>
           <T v="title">{t('review.posted')}</T>
         </Row>
       ) : null}

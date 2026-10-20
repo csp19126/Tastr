@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { PlaceCard } from '@/components/cards';
 import { errorText } from '@/components/errors';
-import { EmptyState, Loading } from '@/components/mascot';
+import { EmptyState, Loading } from '@/components/states';
 import { Button, Card, Row, Screen, T } from '@/components/ui';
 import { del, get, patch } from '@/lib/api';
 import { listName } from '@/lib/lists';
@@ -62,7 +62,7 @@ export default function ListScreen() {
           <Button small icon="↗️" title={t('lists.shareLink')} onPress={() => Share.share({ message: t('lists.shareMessage', { name, url: l.shareUrl }) })} />
         ) : null}
       </Card>
-      {l.places.length === 0 ? <EmptyState mood="sniff" title={t('lists.emptyTitle')} body={t('lists.emptyBody')} /> : null}
+      {l.places.length === 0 ? <EmptyState icon="🔍" title={t('lists.emptyTitle')} body={t('lists.emptyBody')} /> : null}
       {l.places.map((p) => (
         <Card key={p.id} style={{ padding: 0, borderWidth: 0, backgroundColor: 'transparent' }}>
           <PlaceCard place={p} />

@@ -8,8 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { LIMITS, PRICE_BRACKETS, TAGS, type Tag } from '@shared';
 import { categoryIcon } from '@/components/cards';
 import { errorText } from '@/components/errors';
-import { Loading } from '@/components/mascot';
-import { PawsInput, SubRatingsInput } from '@/components/paws';
+import { Loading } from '@/components/states';
+import { RatingInput, SubRatingsInput } from '@/components/rating';
 import { Button, Card, Chip, ChipRow, Field, Row, Screen, Section, T } from '@/components/ui';
 import { ApiError, get, mediaUri, post, put, uploadPhoto } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -45,7 +45,7 @@ function draftFromReview(r: Review): Draft {
     id: `edit-${r.id}`,
     reviewId: r.id,
     photos: r.photos.map(asPhoto),
-    paws: r.paws,
+    rating: r.rating,
     ratings: Object.fromEntries(Object.entries(r.ratings).filter(([, v]) => v != null)) as Draft['ratings'],
     body: r.body,
     pricePaid: r.pricePaid != null ? String(r.pricePaid) : '',
@@ -153,10 +153,10 @@ export default function Compose() {
 
   const bodyShort = draft.body.trim().length < LIMITS.reviewBodyMin;
   const dishesOk = draft.dishes.every((d) => !d.name.trim() || d.thumbsUp != null);
-  const canPost = !!draft.place && !!draft.paws && !bodyShort && draft.sponsored != null && dishesOk && !busy;
+  const canPost = !!draft.place && !!draft.rating && !bodyShort && draft.sponsored != null && dishesOk && !busy;
 
   async function postReview() {
-    if (!draft || !draft.place || !draft.paws) return;
+    if (!draft || !draft.place || !draft.rating) return;
     if (draft.sponsored == null) {
       setError(t('review.sponsoredRequired'));
       return;
@@ -180,7 +180,7 @@ export default function Compose() {
       // 2. The review itself.
       const body = {
         placeId: d.place!.id,
-        paws: d.paws,
+        rating: d.rating,
         ratings: d.ratings,
         body: d.body.trim(),
         pricePaid: parseAmount(d.pricePaid),
@@ -240,7 +240,7 @@ export default function Compose() {
       </Section>
 
       <Section title={t('review.overall')}>
-        <PawsInput value={draft.paws} onChange={(paws) => set({ paws })} />
+        <RatingInput value={draft.rating} onChange={(rating) => set({ rating })} />
       </Section>
 
       <Section title={t('review.quickRatings')}>
@@ -337,7 +337,7 @@ export default function Compose() {
 
       {error ? <T v="error">{error}</T> : null}
       {busy ? <T v="dim">{busy}</T> : savedAt ? <T v="dim">✓ {t('review.draftSaved')}</T> : null}
-      <Button testID="post-review" title={t('review.post')} icon="🐾" loading={!!busy} disabled={!canPost} onPress={postReview} />
+      <Button testID="post-review" title={t('review.post')} icon="✓" loading={!!busy} disabled={!canPost} onPress={postReview} />
       <Button
         kind="ghost"
         small

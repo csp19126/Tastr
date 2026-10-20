@@ -1,7 +1,7 @@
-# Tastr 🐶
+# Tastr 🍜
 
 Honest food, drink and nightlife reviews, starting in Da Nang and Hoi An.
-People snap what they ate, rate the place in **paws**, and tell it straight. Everyone else finds somewhere great to eat tonight.
+People snap what they ate, rate the place out of **5 stars**, and tell it straight. Everyone else finds somewhere great to eat tonight.
 
 English and Tiếng Việt from day one. iPhone, Android and (for testing) web, from one codebase.
 
@@ -16,19 +16,19 @@ English and Tiếng Việt from day one. iPhone, Android and (for testing) web, 
 | `mobile/` | The phone app (Expo / React Native). Screens are in `mobile/src/app/`, every word the app says is in `mobile/src/locales/en.ts` and `vi.ts`. |
 | `api/` | The server: accounts, places, reviews, photos, search, lists, moderation. Node + Express + PostgreSQL. |
 | `shared/` | Rules both sides must agree on: categories, tags, limits, the accent-free search, opening-hours maths. |
-| `art/` | The dog. `node art/build.mjs` redraws the icon, splash screen and mascot pictures. |
+| `art/` | The logo (a steaming bowl with chopsticks). `node art/build.mjs` redraws the icon, splash screen and in-app logo. |
 
 ## What works today
 
 **Accounts.** Sign up with email. Google and Apple sign-in are built and checked by the server, and switch on once you've created the Google/Apple credentials (see "What I need from you"). Profile: name, photo, home city, bio, language, currency.
 
-**Reviews.** Up to 10 photos (camera or gallery), shrunk on the phone before upload. GPS and camera details are stripped twice: once on the phone, and again on the server, which re-encodes every photo (there's an automated test proving the location data is gone). Overall paws 1–5 ("Don't bother" → "Drop everything"), quick ratings for Taste, Value, Service, Vibe and Cleanliness, each with its own question ("Would you queue for this?", "Worth the price?", "Would you bring your mum here?"). Price paid in VND (or your currency) and a price-per-person band. The 12 quick tags. Dish notes with their own photo and a thumbs up or down. **Drafts save themselves on the phone as you type.** If the signal drops when you hit Post, nothing is lost: the review waits in the Review tab, and photos that already went up aren't sent twice.
+**Reviews.** Up to 10 photos (camera or gallery), shrunk on the phone before upload. GPS and camera details are stripped twice: once on the phone, and again on the server, which re-encodes every photo (there's an automated test proving the location data is gone). Overall stars 1–5 ("Don't bother" → "Drop everything"), quick ratings for Taste, Value, Service, Vibe and Cleanliness, each with its own question ("Would you queue for this?", "Worth the price?", "Would you bring your mum here?"). Price paid in VND (or your currency) and a price-per-person band. The 12 quick tags. Dish notes with their own photo and a thumbs up or down. **Drafts save themselves on the phone as you type.** If the signal drops when you hit Post, nothing is lost: the review waits in the Review tab, and photos that already went up aren't sent twice.
 
 **Sponsored reviews.** Every review must answer "Did the business pay you or give you anything free?". There's no default, so you can't skip it. A "yes" puts a purple **Sponsored / got it free** label on the review.
 
-**Places.** Anyone can add a place by dragging the map until the pin sits on the stall: no website or address needed. Opening hours, phone and Zalo are optional ("better blank than wrong"). If someone adds a place that's already there, the app asks "Is it this one?". Place pages show photos, average paws and sub-ratings, price band, tags, opening hours with "open now", **popular dishes** (built from everyone's dish notes), directions, call, Zalo and the reviews.
+**Places.** Anyone can add a place by dragging the map until the pin sits on the stall: no website or address needed. Opening hours, phone and Zalo are optional ("better blank than wrong"). If someone adds a place that's already there, the app asks "Is it this one?". Place pages show photos, average stars and sub-ratings, price band, tags, opening hours with "open now", **popular dishes** (built from everyone's dish notes), directions, call, Zalo and the reviews.
 
-**Discover.** List and map of places near you, closest first. Filters: category, price, open now, paws, tags, distance. Search by place name, dish ("bún chả", "pizza") or neighbourhood, **with or without Vietnamese accents**: "banh mi" finds "Bánh Mì", "com ga" finds "Cơm Gà".
+**Discover.** List and map of places near you, closest first. Filters: category, price, open now, star rating, tags, distance. Search by place name, dish ("bún chả", "pizza") or neighbourhood, **with or without Vietnamese accents**: "banh mi" finds "Bánh Mì", "com ga" finds "Cơm Gà".
 
 **Lists.** Everyone starts with "Want to try" and "Date night"; make as many of your own as you like. Switch a list to shared and send the link: it opens a simple web page for friends without the app.
 
@@ -58,7 +58,7 @@ npm install
 npx expo start                # scan the QR code with your phone camera (iPhone) or Expo Go (Android)
 ```
 
-The app finds the server on your computer by itself. Sample log-in: `sample.snout@example.com` / `sample-password`, or create your own account (sign up with the email you put in `ADMIN_EMAILS` to get the Admin screen).
+The app finds the server on your computer by itself. Sample log-in: `sample.diner@example.com` / `sample-password`, or create your own account (sign up with the email you put in `ADMIN_EMAILS` to get the Admin screen).
 
 In Expo Go everything works except Google sign-in, which needs a proper build (below).
 

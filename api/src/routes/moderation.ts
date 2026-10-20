@@ -63,9 +63,9 @@ async function preview(type: ReportTarget, id: number) {
   switch (type) {
     case 'review': {
       const r = await one(
-        `SELECT r.id, r.body, r.paws, r.sponsored, r.hidden_at, r.user_id, u.display_name, p.id AS place_id, p.name AS place_name
+        `SELECT r.id, r.body, r.rating, r.sponsored, r.hidden_at, r.user_id, u.display_name, p.id AS place_id, p.name AS place_name
          FROM reviews r JOIN users u ON u.id = r.user_id JOIN places p ON p.id = r.place_id WHERE r.id = $1`, [id]);
-      return r && { text: r.body, paws: r.paws, sponsored: r.sponsored, hidden: !!r.hidden_at, authorId: r.user_id, authorName: r.display_name, placeId: r.place_id, placeName: r.place_name };
+      return r && { text: r.body, rating: r.rating, sponsored: r.sponsored, hidden: !!r.hidden_at, authorId: r.user_id, authorName: r.display_name, placeId: r.place_id, placeName: r.place_name };
     }
     case 'photo': {
       const p = await one(`SELECT ph.*, u.display_name FROM photos ph JOIN users u ON u.id = ph.user_id WHERE ph.id = $1`, [id]);

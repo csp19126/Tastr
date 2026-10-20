@@ -26,7 +26,7 @@ export default function FiltersScreen() {
     <Screen scroll>
       <Section title={t('discover.sort')}>
         <ChipRow>
-          {(['distance', 'paws', 'popular', 'newest'] as const).map((s) => (
+          {(['distance', 'rating', 'popular', 'newest'] as const).map((s) => (
             <Chip key={s} label={t(`discover.sort${s[0].toUpperCase()}${s.slice(1)}` as 'discover.sortDistance')} selected={f.sort === s} onPress={() => setF({ ...f, sort: s })} />
           ))}
         </ChipRow>
@@ -53,11 +53,11 @@ export default function FiltersScreen() {
         </ChipRow>
       </Section>
 
-      <Section title={`${t('paws.label')} · ${t('discover.minPaws')}`}>
+      <Section title={`${t('rating.label')} · ${t('discover.minRating')}`}>
         <ChipRow>
-          <Chip label={t('discover.anyPaws')} selected={!f.minPaws} onPress={() => setF({ ...f, minPaws: null })} />
+          <Chip label={t('discover.anyRating')} selected={!f.minRating} onPress={() => setF({ ...f, minRating: null })} />
           {[3, 4, 4.5].map((n) => (
-            <Chip key={n} label={`${n}+ 🐾`} selected={f.minPaws === n} onPress={() => setF({ ...f, minPaws: n })} />
+            <Chip key={n} label={`${n}+ ★`} selected={f.minRating === n} onPress={() => setF({ ...f, minRating: n })} />
           ))}
         </ChipRow>
       </Section>

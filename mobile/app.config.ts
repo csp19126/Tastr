@@ -51,7 +51,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     [
       'expo-location',
-      { locationWhenInUsePermission: 'Tastr uses your location to sniff out good places near you.' },
+      { locationWhenInUsePermission: 'Tastr uses your location to find good places near you.' },
     ],
     // Android store builds need a Google Maps key (Expo Go doesn't). iPhones use Apple Maps, no key needed.
     ['react-native-maps', process.env.GOOGLE_MAPS_ANDROID_API_KEY ? { androidGoogleMapsApiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY } : {}],

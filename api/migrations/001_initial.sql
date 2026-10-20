@@ -74,7 +74,7 @@ CREATE TABLE reviews (
   id            bigserial PRIMARY KEY,
   place_id      bigint NOT NULL REFERENCES places(id) ON DELETE CASCADE,
   user_id       bigint NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  paws          smallint NOT NULL CHECK (paws BETWEEN 1 AND 5),
+  rating          smallint NOT NULL CHECK (rating BETWEEN 1 AND 5),
   taste         smallint CHECK (taste BETWEEN 1 AND 5),
   value         smallint CHECK (value BETWEEN 1 AND 5),
   service       smallint CHECK (service BETWEEN 1 AND 5),
@@ -258,7 +258,7 @@ CREATE VIEW visible_reviews AS
 CREATE VIEW place_stats AS
   SELECT place_id,
          count(*)::int                       AS review_count,
-         round(avg(paws), 2)::float8         AS paws,
+         round(avg(rating), 2)::float8         AS rating,
          round(avg(taste), 2)::float8        AS taste,
          round(avg(value), 2)::float8        AS value,
          round(avg(service), 2)::float8      AS service,

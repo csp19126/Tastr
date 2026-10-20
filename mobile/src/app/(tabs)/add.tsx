@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
-import { EmptyState } from '@/components/mascot';
+import { EmptyState } from '@/components/states';
 import { Button, Card, Row, Screen, Section, T } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
 import { deleteDraft, listDrafts, type Draft } from '@/lib/drafts';
@@ -25,7 +25,7 @@ export default function AddTab() {
   if (!user) {
     return (
       <Screen>
-        <EmptyState mood="happy" title={t('auth.needAccountTitle')} body={t('auth.needAccountBody')} action={<Button title={t('common.signIn')} onPress={() => router.push('/sign-in')} />} />
+        <EmptyState icon="🍜" title={t('auth.needAccountTitle')} body={t('auth.needAccountBody')} action={<Button title={t('common.signIn')} onPress={() => router.push('/sign-in')} />} />
       </Screen>
     );
   }
@@ -33,7 +33,7 @@ export default function AddTab() {
   return (
     <Screen scroll>
       <EmptyState
-        mood="happy"
+        icon="🍜"
         title={t('review.startTitle')}
         body={t('review.startBody')}
         action={

@@ -1,7 +1,7 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
-import { Loading } from '@/components/mascot';
+import { Loading } from '@/components/states';
 import { Screen, T } from '@/components/ui';
 import { formatDate } from '@/lib/format';
 import { useContent } from '@/lib/content';

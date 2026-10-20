@@ -79,7 +79,7 @@ async function socialSignIn(provider: 'google' | 'apple', p: SocialProfile, fall
       u = await one(`UPDATE users SET ${col} = $2 WHERE email = $1 AND ${col} IS NULL RETURNING id`, [p.email, p.sub], db);
     }
     if (!u) {
-      const name = (p.name || fallbackName || p.email?.split('@')[0] || 'Hungry dog').slice(0, 50);
+      const name = (p.name || fallbackName || p.email?.split('@')[0] || 'Hungry diner').slice(0, 50);
       u = await one(
         `INSERT INTO users (email, ${col}, display_name, language, role) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
         [p.email && p.emailVerified ? p.email : null, p.sub, name, language, roleFor(p.emailVerified ? p.email : null)],

@@ -7,10 +7,10 @@ export type Filters = {
   categories: Category[];
   price: number[];
   tags: Tag[];
-  minPaws: number | null;
+  minRating: number | null;
   openNow: boolean;
   radiusKm: number;
-  sort: 'distance' | 'paws' | 'popular' | 'newest';
+  sort: 'distance' | 'rating' | 'popular' | 'newest';
 };
 
 export const DEFAULT_FILTERS: Filters = {
@@ -18,7 +18,7 @@ export const DEFAULT_FILTERS: Filters = {
   categories: [],
   price: [],
   tags: [],
-  minPaws: null,
+  minRating: null,
   openNow: false,
   radiusKm: 10,
   sort: 'distance',
@@ -26,7 +26,7 @@ export const DEFAULT_FILTERS: Filters = {
 
 /** How many filters are switched on, for the badge on the Filters button. */
 export function activeFilterCount(f: Filters) {
-  return f.categories.length + f.price.length + f.tags.length + (f.minPaws ? 1 : 0) + (f.openNow ? 1 : 0) + (f.radiusKm !== DEFAULT_FILTERS.radiusKm ? 1 : 0);
+  return f.categories.length + f.price.length + f.tags.length + (f.minRating ? 1 : 0) + (f.openNow ? 1 : 0) + (f.radiusKm !== DEFAULT_FILTERS.radiusKm ? 1 : 0);
 }
 
 const Ctx = createContext<{ filters: Filters; setFilters: (f: Filters) => void } | null>(null);

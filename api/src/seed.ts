@@ -14,7 +14,7 @@ const PLACES = [
   { name: 'Bánh Mì Cô Mẫu (sample)', category: 'street_food', lat: 16.0678, lng: 108.2208, city: 'da_nang', neighbourhood: 'Hải Châu', hours: allWeek('06:00', '11:00') },
   { name: 'Mì Quảng Ếch Ba Lúa (sample)', category: 'restaurant', lat: 16.0612, lng: 108.2166, city: 'da_nang', neighbourhood: 'Hải Châu', hours: allWeek('06:30', '14:00') },
   { name: 'Ốc Đêm Sơn Trà (sample)', category: 'street_food', lat: 16.0745, lng: 108.2398, city: 'da_nang', neighbourhood: 'Sơn Trà', hours: allWeek('16:00', '23:30') },
-  { name: 'Sky Paws Rooftop (sample)', category: 'rooftop', lat: 16.0590, lng: 108.2470, city: 'da_nang', neighbourhood: 'Mỹ Khê', hours: allWeek('17:00', '01:00') },
+  { name: 'Sky High Rooftop (sample)', category: 'rooftop', lat: 16.0590, lng: 108.2470, city: 'da_nang', neighbourhood: 'Mỹ Khê', hours: allWeek('17:00', '01:00') },
   { name: 'Cà Phê Muối Nhà Gỗ (sample)', category: 'cafe', lat: 16.0544, lng: 108.2022, city: 'da_nang', neighbourhood: 'Thanh Khê', hours: allWeek('06:00', '22:00') },
   { name: 'Cơm Gà Bà Tám (sample)', category: 'restaurant', lat: 15.8789, lng: 108.3305, city: 'hoi_an', neighbourhood: 'Phố Cổ', hours: allWeek('10:00', '21:00') },
   { name: 'Cao Lầu Góc Phố (sample)', category: 'street_food', lat: 15.8771, lng: 108.3268, city: 'hoi_an', neighbourhood: 'Phố Cổ', hours: null },
@@ -46,7 +46,7 @@ async function main() {
   }
   const hash = await hashPassword('sample-password');
   const users: number[] = [];
-  for (const [name, city] of [['Sample Snout', 'da_nang'], ['Sample Whiskers', 'hoi_an']]) {
+  for (const [name, city] of [['Sample Diner', 'da_nang'], ['Sample Critic', 'hoi_an']]) {
     const u = await one(
       `INSERT INTO users (email, password_hash, display_name, home_city, bio) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
       [`${name.toLowerCase().replace(' ', '.')}@example.com`, hash, name, city, 'A made-up reviewer for testing.'],
@@ -65,11 +65,11 @@ async function main() {
     );
     placeIds.push(row!.id);
   }
-  for (const [i, [place, paws, body, tags, dishes, bracket]] of REVIEWS.entries()) {
+  for (const [i, [place, rating, body, tags, dishes, bracket]] of REVIEWS.entries()) {
     const r = await one(
-      `INSERT INTO reviews (place_id, user_id, paws, taste, value, service, vibe, cleanliness, body, price_bracket, tags, sponsored)
+      `INSERT INTO reviews (place_id, user_id, rating, taste, value, service, vibe, cleanliness, body, price_bracket, tags, sponsored)
        VALUES ($1, $2, $3, $3, $4, 3, 4, 3, $5, $6, $7, false) RETURNING id`,
-      [placeIds[place], users[i % 2], paws, Math.min(5, paws + 1 - bracket + 1), body, bracket, tags],
+      [placeIds[place], users[i % 2], rating, Math.min(5, rating + 1 - bracket + 1), body, bracket, tags],
     );
     for (const [j, [name, up]] of dishes.entries()) {
       await q(
@@ -78,7 +78,7 @@ async function main() {
       );
     }
   }
-  console.log(`Added ${PLACES.length} sample places and ${REVIEWS.length} sample reviews. Sample log-in: sample.snout@example.com / sample-password`);
+  console.log(`Added ${PLACES.length} sample places and ${REVIEWS.length} sample reviews. Sample log-in: sample.diner@example.com / sample-password`);
 }
 
 main()

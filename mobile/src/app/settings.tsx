@@ -76,7 +76,7 @@ export default function Settings() {
       {error ? <T v="error">{error}</T> : null}
 
       <View>
-        <ListRow title={`🐶 ${t('settings.about')}`} onPress={() => router.push('/about')} />
+        <ListRow title={`ℹ️ ${t('settings.about')}`} onPress={() => router.push('/about')} />
         <Divider />
         <ListRow title={t('settings.terms')} onPress={() => router.push('/legal/terms')} />
         <Divider />

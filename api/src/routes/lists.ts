@@ -40,7 +40,7 @@ const LIST_SELECT = `SELECT l.*,
 async function listItems(listId: number) {
   const rows = await q(
     `SELECT li.note, li.added_at, p.id, p.name, p.category, p.city, p.neighbourhood, p.lat, p.lng,
-            p.opening_hours, p.timezone, s.paws, s.review_count, s.price_bracket,
+            p.opening_hours, p.timezone, s.rating, s.review_count, s.price_bracket,
             (SELECT ph.storage_key FROM photos ph JOIN visible_reviews vr ON vr.id = ph.review_id
               WHERE ph.place_id = p.id AND ph.hidden_at IS NULL ORDER BY ph.id DESC LIMIT 1) AS cover_key
      FROM list_items li JOIN places p ON p.id = li.place_id LEFT JOIN place_stats s ON s.place_id = p.id
@@ -56,7 +56,7 @@ async function listItems(listId: number) {
     neighbourhood: r.neighbourhood,
     lat: r.lat,
     lng: r.lng,
-    paws: r.paws,
+    rating: r.rating,
     reviewCount: r.review_count ?? 0,
     priceBracket: r.price_bracket,
     coverUrl: mediaUrl(r.cover_key),
@@ -160,12 +160,12 @@ sharePageRoutes.get('/:slug', async (req, res) => {
     list = await sharedList(req.params.slug);
   } catch {
     res.status(404).type('html').send(`<!doctype html><meta name="viewport" content="width=device-width">
-      <body style="font-family:system-ui;padding:24px"><h1>🐶 Sniffed around…</h1><p>This list is private or gone.</p>`);
+      <body style="font-family:system-ui;padding:24px"><h1>Nothing to see here</h1><p>This list is private or gone.</p>`);
     return;
   }
   const title = list.name || LIST_NAMES[list.kind] || 'A list';
   const items = list.places
-    .map((p) => `<li><b>${esc(p.name)}</b>${p.paws ? ` · ${'🐾'.repeat(Math.round(p.paws))}` : ''}<br><small>${esc(p.neighbourhood || p.city)}</small>
+    .map((p) => `<li><b>${esc(p.name)}</b>${p.rating ? ` · ${'★'.repeat(Math.round(p.rating))}` : ''}<br><small>${esc(p.neighbourhood || p.city)}</small>
       ${p.note ? `<br><i>${esc(p.note)}</i>` : ''}
       <br><a href="https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}">Map</a></li>`)
     .join('');

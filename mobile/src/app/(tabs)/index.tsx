@@ -8,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { APP_NAME, CATEGORIES } from '@shared';
 import { categoryIcon, PlaceCard } from '@/components/cards';
 import { errorText } from '@/components/errors';
-import { EmptyState, Loading } from '@/components/mascot';
+import { EmptyState, Loading } from '@/components/states';
 import { PlacesMap } from '@/components/places-map';
 import { Button, Chip, ChipRow, Row, T } from '@/components/ui';
 import { get } from '@/lib/api';
@@ -51,7 +51,7 @@ export default function Discover() {
         category: filters.categories,
         price: filters.price,
         tags: filters.tags,
-        minPaws: filters.minPaws ?? undefined,
+        minRating: filters.minRating ?? undefined,
         openNow: filters.openNow || undefined,
         sort: filters.sort,
         limit: 60,
@@ -120,7 +120,7 @@ export default function Discover() {
       ) : query.isLoading ? (
         <Loading />
       ) : query.isError ? (
-        <EmptyState mood="sleep" title={errorText(query.error)} action={<Button title={t('common.retry')} onPress={() => query.refetch()} />} />
+        <EmptyState icon="🍽️" title={errorText(query.error)} action={<Button title={t('common.retry')} onPress={() => query.refetch()} />} />
       ) : (
         <FlatList
           data={places}
@@ -132,7 +132,7 @@ export default function Discover() {
           renderItem={({ item }) => <PlaceCard place={item} />}
           ListEmptyComponent={
             <EmptyState
-              mood="sniff"
+              icon="🔍"
               title={t('discover.emptyTitle')}
               body={t('discover.emptyBody')}
               action={

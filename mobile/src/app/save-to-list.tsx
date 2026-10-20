@@ -5,7 +5,7 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { errorText } from '@/components/errors';
-import { Loading } from '@/components/mascot';
+import { Loading } from '@/components/states';
 import { Button, Field, ListRow, Row, Screen, T } from '@/components/ui';
 import { del, get, post } from '@/lib/api';
 import { listName } from '@/lib/lists';

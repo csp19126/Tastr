@@ -16,7 +16,7 @@ export type Draft = {
   reviewId?: number; // set when editing a posted review
   place: { id: number; name: string } | null;
   photos: DraftPhoto[];
-  paws: number | null;
+  rating: number | null;
   ratings: Partial<Record<SubRating, number>>;
   body: string;
   pricePaid: string;
@@ -36,7 +36,7 @@ export function newDraft(place: Draft['place'], currency: Currency): Draft {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     place,
     photos: [],
-    paws: null,
+    rating: null,
     ratings: {},
     body: '',
     pricePaid: '',

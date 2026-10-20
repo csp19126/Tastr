@@ -42,7 +42,7 @@ const ratingSchema = z.number().int().min(1).max(5).nullable().optional();
 
 const reviewSchema = z.object({
   placeId: z.number().int().positive(),
-  paws: z.number().int().min(1).max(5),
+  rating: z.number().int().min(1).max(5),
   ratings: z
     .object({ taste: ratingSchema, value: ratingSchema, service: ratingSchema, vibe: ratingSchema, cleanliness: ratingSchema })
     .default({}),
@@ -106,7 +106,7 @@ async function attachPhotos(db: Db, reviewId: number, placeId: number, userId: n
 
 function reviewValues(b: Omit<ReviewInput, 'placeId'>) {
   return [
-    b.paws, b.ratings.taste ?? null, b.ratings.value ?? null, b.ratings.service ?? null, b.ratings.vibe ?? null,
+    b.rating, b.ratings.taste ?? null, b.ratings.value ?? null, b.ratings.service ?? null, b.ratings.vibe ?? null,
     b.ratings.cleanliness ?? null, b.body, b.pricePaid ?? null, b.currency, b.priceBracket ?? null, b.tags,
     b.sponsored, b.visitedOn ?? null,
   ];
@@ -145,7 +145,7 @@ reviewRoutes.post('/', async (req, res) => {
     if (samePlace) throw new HttpError(409, 'reviewed_recently');
 
     const r = await one<{ id: number }>(
-      `INSERT INTO reviews (place_id, user_id, paws, taste, value, service, vibe, cleanliness, body,
+      `INSERT INTO reviews (place_id, user_id, rating, taste, value, service, vibe, cleanliness, body,
          price_paid, currency, price_bracket, tags, sponsored, visited_on)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING id`,
       [b.placeId, me.id, ...reviewValues(b)],
@@ -169,7 +169,7 @@ reviewRoutes.put('/:id', async (req, res) => {
   const b = parse(reviewSchema.omit({ placeId: true }), req.body);
   const removed = await tx(async (db) => {
     await q(
-      `UPDATE reviews SET paws=$2, taste=$3, value=$4, service=$5, vibe=$6, cleanliness=$7, body=$8,
+      `UPDATE reviews SET rating=$2, taste=$3, value=$4, service=$5, vibe=$6, cleanliness=$7, body=$8,
          price_paid=$9, currency=$10, price_bracket=$11, tags=$12, sponsored=$13, visited_on=$14, updated_at=now()
        WHERE id = $1`,
       [id, ...reviewValues(b)],

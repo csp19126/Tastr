@@ -36,10 +36,10 @@ const searchSchema = z.object({
   category: csv(z.enum(CATEGORIES)),
   price: csv(z.coerce.number().int().min(1).max(PRICE_BRACKETS.length)),
   tags: csv(z.enum(TAGS)),
-  minPaws: z.coerce.number().min(1).max(5).optional(),
+  minRating: z.coerce.number().min(1).max(5).optional(),
   openNow: bool,
   city: z.enum(CITY_IDS).optional(),
-  sort: z.enum(['distance', 'paws', 'newest', 'popular']).optional(),
+  sort: z.enum(['distance', 'rating', 'newest', 'popular']).optional(),
   limit: z.coerce.number().int().min(1).max(100).default(40),
   offset: z.coerce.number().int().min(0).max(5000).default(0),
 });
@@ -64,7 +64,7 @@ function placeCard(p: any, now: Date) {
     neighbourhood: p.neighbourhood,
     city: p.city,
     coverUrl: mediaUrl(p.cover_key),
-    paws: p.paws,
+    rating: p.rating,
     reviewCount: p.review_count ?? 0,
     priceBracket: p.price_bracket,
     tags: p.tags ?? [],
@@ -106,22 +106,22 @@ placeRoutes.get('/', async (req, res) => {
   if (f.category?.length) where.push(`p.category = ANY(${add(f.category)})`);
   if (f.city) where.push(`p.city = ${add(f.city)}`);
   if (f.price?.length) where.push(`s.price_bracket = ANY(${add(f.price)})`);
-  if (f.minPaws) where.push(`s.paws >= ${add(f.minPaws)}`);
+  if (f.minRating) where.push(`s.rating >= ${add(f.minRating)}`);
   if (f.tags?.length) where.push(`${PLACE_TAGS} @> ${add(f.tags)}::text[]`);
 
   const sort = f.sort ?? (hasPoint ? 'distance' : 'popular');
   const order = {
     distance: hasPoint ? 'distance_km ASC' : 'p.id DESC',
-    paws: 's.paws DESC NULLS LAST, s.review_count DESC NULLS LAST',
+    rating: 's.rating DESC NULLS LAST, s.review_count DESC NULLS LAST',
     newest: 'p.id DESC',
-    popular: 's.review_count DESC NULLS LAST, s.paws DESC NULLS LAST',
+    popular: 's.review_count DESC NULLS LAST, s.rating DESC NULLS LAST',
   }[sort];
 
   // "Open now" depends on each place's own hours and clock, so it's checked after the query.
   const fetchLimit = f.openNow ? 500 : f.limit;
   const fetchOffset = f.openNow ? 0 : f.offset;
   const rows = await q(
-    `SELECT p.*, s.paws, s.review_count, s.price_bracket, ${COVER} AS cover_key, ${PLACE_TAGS} AS tags,
+    `SELECT p.*, s.rating, s.review_count, s.price_bracket, ${COVER} AS cover_key, ${PLACE_TAGS} AS tags,
             ${distance} AS distance_km
      FROM places p LEFT JOIN place_stats s ON s.place_id = p.id
      WHERE ${where.join(' AND ')}

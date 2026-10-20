@@ -8,8 +8,7 @@ import { mediaUri } from '@/lib/api';
 import { formatDate, formatDistance, formatPrice, priceSymbol } from '@/lib/format';
 import { radius, space, useColors } from '@/lib/theme';
 import type { ListPlace, PlaceCard as Place, Review } from '@/lib/types';
-import { Mascot } from './mascot';
-import { Paws } from './paws';
+import { Stars } from './rating';
 import { Avatar, Card, Row, T } from './ui';
 
 const CATEGORY_ICON: Record<string, string> = {
@@ -42,7 +41,7 @@ export function PlaceCard({ place, compact }: { place: Place | ListPlace; compac
       </View>
       <View style={{ flex: 1, gap: 3 }}>
         <T v="bold" numberOfLines={1}>{place.name}</T>
-        <Paws value={place.paws} count={place.reviewCount || undefined} />
+        <Stars value={place.rating} count={place.reviewCount || undefined} />
         <Row gap={6} style={{ flexWrap: 'wrap' }}>
           <T v="dim">{t(`categories.${place.category}`)}</T>
           {place.priceBracket ? <T v="dim">· {priceSymbol(place.priceBracket)}</T> : null}
@@ -100,8 +99,8 @@ export function ReviewCard({ review, showPlace = true, full = false }: { review:
       ) : null}
       {review.sponsored ? <SponsoredLabel /> : null}
       <Row style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
-        <Paws value={review.paws} size={16} showNumber={false} />
-        <T v="bold" style={{ color: c.primary }}>{t(`paws.${review.paws}` as 'paws.1')}</T>
+        <Stars value={review.rating} size={16} showNumber={false} />
+        <T v="bold" style={{ color: c.primary }}>{t(`rating.${review.rating}` as 'rating.1')}</T>
       </Row>
       <Pressable onPress={() => (full ? undefined : router.push(`/review/${review.id}`))}>
         <T numberOfLines={expanded ? undefined : 6}>{review.body}</T>
@@ -144,8 +143,4 @@ export function ReviewCard({ review, showPlace = true, full = false }: { review:
       ) : null}
     </Card>
   );
-}
-
-export function NoPhoto({ size = 80 }: { size?: number }) {
-  return <Mascot mood="happy" size={size} />;
 }

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ReviewCard } from '@/components/cards';
 import { errorText } from '@/components/errors';
-import { EmptyState, Loading } from '@/components/mascot';
+import { EmptyState, Loading } from '@/components/states';
 import { Button, Chip, Row } from '@/components/ui';
 import { get } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -35,7 +35,7 @@ export default function Feed() {
         <Chip testID="feed-following" label={t('feed.following')} selected={scope === 'following'} onPress={() => setScope('following')} />
       </Row>
       {scope === 'following' && !user ? (
-        <EmptyState mood="happy" title={t('auth.needAccountTitle')} body={t('feed.emptyFollowingBody')} action={<Button title={t('common.signIn')} onPress={() => router.push('/sign-in')} />} />
+        <EmptyState icon="🍜" title={t('auth.needAccountTitle')} body={t('feed.emptyFollowingBody')} action={<Button title={t('common.signIn')} onPress={() => router.push('/sign-in')} />} />
       ) : feed.isLoading ? (
         <Loading />
       ) : feed.isError ? (
@@ -52,9 +52,9 @@ export default function Feed() {
           onEndReachedThreshold={0.5}
           ListEmptyComponent={
             scope === 'following' ? (
-              <EmptyState mood="sniff" title={t('feed.emptyFollowingTitle')} body={t('feed.emptyFollowingBody')} />
+              <EmptyState icon="🔍" title={t('feed.emptyFollowingTitle')} body={t('feed.emptyFollowingBody')} />
             ) : (
-              <EmptyState mood="sleep" title={t('feed.emptyCityTitle')} body={t('feed.emptyCityBody')} action={<Button icon="📸" title={t('review.start')} onPress={() => router.push('/review/compose')} />} />
+              <EmptyState icon="🍽️" title={t('feed.emptyCityTitle')} body={t('feed.emptyCityBody')} action={<Button icon="📸" title={t('review.start')} onPress={() => router.push('/review/compose')} />} />
             )
           }
         />

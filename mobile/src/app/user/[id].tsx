@@ -3,7 +3,7 @@ import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { errorText } from '@/components/errors';
-import { EmptyState, Loading } from '@/components/mascot';
+import { EmptyState, Loading } from '@/components/states';
 import { ProfileHeader, UserReviews } from '@/components/profile';
 import { Button, Row, Screen } from '@/components/ui';
 import { del, get, post } from '@/lib/api';

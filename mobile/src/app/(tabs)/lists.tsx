@@ -6,7 +6,7 @@ import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { errorText } from '@/components/errors';
-import { EmptyState, Loading } from '@/components/mascot';
+import { EmptyState, Loading } from '@/components/states';
 import { Button, Card, Field, Row, Screen, T } from '@/components/ui';
 import { get, mediaUri, post } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -32,7 +32,7 @@ export default function ListsTab() {
   if (!user) {
     return (
       <Screen>
-        <EmptyState mood="happy" title={t('lists.signInTitle')} body={t('lists.emptyBody')} action={<Button title={t('common.signIn')} onPress={() => router.push('/sign-in')} />} />
+        <EmptyState icon="🍜" title={t('lists.signInTitle')} body={t('lists.emptyBody')} action={<Button title={t('common.signIn')} onPress={() => router.push('/sign-in')} />} />
       </Screen>
     );
   }
@@ -56,7 +56,7 @@ export default function ListsTab() {
           <T v="dim">›</T>
         </Card>
       ))}
-      {empty ? <EmptyState mood="sniff" title={t('lists.emptyTitle')} body={t('lists.emptyBody')} /> : null}
+      {empty ? <EmptyState icon="🔍" title={t('lists.emptyTitle')} body={t('lists.emptyBody')} /> : null}
       <Row style={{ alignItems: 'flex-end' }}>
         <View style={{ flex: 1 }}>
           <Field testID="new-list-name" label={t('lists.newList')} placeholder={t('lists.newListPlaceholder')} value={name} onChangeText={setName} maxLength={60} />
