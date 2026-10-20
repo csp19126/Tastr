@@ -4,15 +4,15 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "env": { "EXPO_PUBLIC_API_URL": "https://YOUR-API.up.railway.app" }
+      "env": { "EXPO_PUBLIC_API_URL": "https://tastr-api-production.up.railway.app" }
     },
     "preview": {
       "distribution": "internal",
-      "env": { "EXPO_PUBLIC_API_URL": "https://YOUR-API.up.railway.app" }
+      "env": { "EXPO_PUBLIC_API_URL": "https://tastr-api-production.up.railway.app" }
     },
     "production": {
       "autoIncrement": true,
-      "env": { "EXPO_PUBLIC_API_URL": "https://YOUR-API.up.railway.app" }
+      "env": { "EXPO_PUBLIC_API_URL": "https://tastr-api-production.up.railway.app" }
     }
   },
   "submit": { "production": {} }

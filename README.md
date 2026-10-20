@@ -62,7 +62,21 @@ The app finds the server on your computer by itself. Sample log-in: `sample.dine
 
 In Expo Go everything works except Google sign-in, which needs a proper build (below).
 
-## Put the server live (Railway, like Dragongame)
+## The live server
+
+It's running on Railway, in its own project called **tastr** (separate from Dragongame):
+**https://tastr-api-production.up.railway.app** (check https://tastr-api-production.up.railway.app/health).
+Every push to this branch redeploys it. The database and the photo storage volume are in the same project.
+Sign up in the app with **csp19126@gmail.com** to get the Admin screen.
+
+To try the phone app against the live server instead of your computer:
+
+```bash
+cd mobile
+EXPO_PUBLIC_API_URL=https://tastr-api-production.up.railway.app npx expo start
+```
+
+## Setting up Railway from scratch (for reference)
 
 1. In Railway, **New Project → Deploy from GitHub repo** and pick this repository. `railway.json` tells it to build `api/Dockerfile`.
 2. **Add a PostgreSQL database** to the project, then in the Tastr service's **Variables** add a reference to its `DATABASE_URL`.
@@ -70,7 +84,7 @@ In Expo Go everything works except Google sign-in, which needs a proper build (b
 4. **Settings → Networking → Generate Domain.** Then add these variables:
    - `PUBLIC_URL` = that address, e.g. `https://tastr-api.up.railway.app`
    - `ADMIN_EMAILS` = your email
-5. Put the same address in `mobile/eas.json` (the three `EXPO_PUBLIC_API_URL` lines) for phone builds.
+5. Put the same address in `mobile/eas.json` (the three `EXPO_PUBLIC_API_URL` lines) for phone builds. (Already done for the live server above.)
 
 The database sets itself up on first start and upgrades itself on every deploy. `/health` tells you whether the server and database are up.
 
