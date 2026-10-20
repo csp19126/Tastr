@@ -1,7 +1,8 @@
 **/node_modules
 **/dist
 **/.env
-mobile
+mobile/.expo
+mobile/web-build
 art
 .git
 api/uploads

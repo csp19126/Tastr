@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import express from 'express';
 
 import { loadUser } from './auth';
+import { config } from './config';
 import { pool } from './db';
 import { errorHandler, notFound } from './http';
 import { mediaPath } from './media';
@@ -74,6 +75,23 @@ export function createApp() {
     throw notFound();
   });
   app.use('/api', api);
+
+  // The web version of the app: real files first, then index.html for any other page address.
+  if (fs.existsSync(`${config.webDir}/index.html`)) {
+    app.use(
+      express.static(config.webDir, {
+        index: false,
+        setHeaders: (res, file) => {
+          // Bundles have content hashes in their names, so they never change; the page itself can.
+          res.setHeader('Cache-Control', file.includes('/_expo/') || file.includes('/assets/') ? 'public, max-age=31536000, immutable' : 'no-cache');
+        },
+      }),
+    );
+    app.get(/^\/(?!api\/|media\/|_expo\/|assets\/).*/, (_req, res) => {
+      res.setHeader('Cache-Control', 'no-cache');
+      res.sendFile(`${config.webDir}/index.html`);
+    });
+  }
 
   app.use(errorHandler);
   return app;

@@ -487,6 +487,19 @@ describe('delete my account', () => {
   });
 });
 
+describe('the web version', () => {
+  it('serves the app at any page address, but never in place of the API or a missing file', async () => {
+    for (const path of ['/', '/place/12', '/review/compose']) {
+      const res = await request(app).get(path);
+      expect(res.status).toBe(200);
+      expect(res.text).toContain('Tastr web');
+    }
+    expect((await request(app).get('/api/nope')).body.error).toBe('not_found');
+    expect((await request(app).get('/_expo/static/js/missing.js')).status).toBe(404);
+    expect((await request(app).get('/health')).body.ok).toBe(true);
+  });
+});
+
 describe('the server', () => {
   it('reports health and gives clean errors', async () => {
     expect((await request(app).get('/health')).body).toEqual({ ok: true, db: true });

@@ -69,6 +69,8 @@ It's running on Railway, in its own project called **tastr** (separate from Drag
 Every push to this branch redeploys it. The database and the photo storage volume are in the same project.
 Sign up in the app with **csp19126@gmail.com** to get the Admin screen.
 
+**See it on your phone right now:** open **https://tastr-api-production.up.railway.app** in your phone's browser. That's the web version of the app, served by the same server (the proper phone app has the full map and camera).
+
 To try the phone app against the live server instead of your computer:
 
 ```bash

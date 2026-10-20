@@ -11,7 +11,12 @@ function apiUrl(): string {
   if (set) return set.replace(/\/$/, '');
   const host = Constants.expoConfig?.hostUri?.split(':')[0];
   if (host) return `http://${host}:4000`;
-  if (Platform.OS === 'web' && typeof window !== 'undefined') return `${window.location.protocol}//${window.location.hostname}:4000`;
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    // The web version is served by the Tastr server itself, so it talks to wherever it came from.
+    // (A local preview on port 8081 talks to a local server on 4000.)
+    const { protocol, hostname, port, origin } = window.location;
+    return port === '8081' ? `${protocol}//${hostname}:4000` : origin;
+  }
   return Platform.OS === 'android' ? 'http://10.0.2.2:4000' : 'http://localhost:4000';
 }
 

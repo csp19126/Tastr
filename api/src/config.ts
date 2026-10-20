@@ -8,6 +8,8 @@ export const config = {
   databaseUrl: process.env.DATABASE_URL ?? '',
   adminEmails: list(process.env.ADMIN_EMAILS).map((e) => e.toLowerCase()),
   uploadDir: path.resolve(process.env.UPLOAD_DIR ?? './uploads'),
+  /** The built web version of the app, served at / when present (the Docker image builds it). */
+  webDir: path.resolve(process.env.WEB_DIR ?? './web'),
   publicUrl: (process.env.PUBLIC_URL ?? '').replace(/\/$/, ''),
   googleClientIds: list(process.env.GOOGLE_CLIENT_IDS),
   appleBundleIds: list(process.env.APPLE_BUNDLE_IDS),

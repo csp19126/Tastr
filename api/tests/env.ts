@@ -9,3 +9,10 @@ process.env.PUBLIC_URL = 'http://api.test';
 process.env.GOOGLE_CLIENT_IDS = 'test-google-client';
 process.env.APPLE_BUNDLE_IDS = 'com.tastr.test';
 process.env.AUTH_ATTEMPTS_PER_15_MIN = '100000';
+
+// A stand-in for the built web app, so the tests can check it's served.
+import fs from 'node:fs';
+const webDir = path.join(os.tmpdir(), 'tastr-test-web');
+fs.mkdirSync(webDir, { recursive: true });
+fs.writeFileSync(path.join(webDir, 'index.html'), '<!doctype html><title>Tastr web</title>');
+process.env.WEB_DIR = webDir;
