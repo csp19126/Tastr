@@ -82,6 +82,9 @@ export default function SignIn() {
             disabled={!email || password.length < (mode === 'register' ? 8 : 1) || (mode === 'register' && !name.trim())}
             onPress={() => run(() => (mode === 'register' ? auth.register(email.trim(), password, name.trim()) : auth.signInEmail(email.trim(), password)))}
           />
+          {mode === 'login' ? (
+            <Button testID="forgot" kind="ghost" title={t('auth.forgot')} onPress={() => router.push({ pathname: '/forgot-password', params: { email: email.trim() } })} />
+          ) : null}
           <Button kind="ghost" title={mode === 'register' ? t('auth.haveAccount') : t('auth.noAccount')} onPress={() => setMode(mode === 'register' ? 'login' : 'register')} />
           <Button kind="ghost" title={t('common.back')} onPress={() => setMode('choose')} />
         </View>

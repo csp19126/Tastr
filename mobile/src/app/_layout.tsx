@@ -34,6 +34,7 @@ function AppStack() {
       }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="sign-in" options={{ presentation: 'modal', title: t('common.signIn') }} />
+      <Stack.Screen name="forgot-password" options={{ presentation: 'modal', title: t('reset.title') }} />
       <Stack.Screen name="filters" options={{ presentation: 'modal', title: t('discover.filters') }} />
       <Stack.Screen name="save-to-list" options={{ presentation: 'modal', title: t('lists.saveTo') }} />
       <Stack.Screen name="report" options={{ presentation: 'modal', title: t('report.title') }} />

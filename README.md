@@ -112,11 +112,22 @@ These are things only you can do (accounts, money, legal), or decisions that are
 6. **Terms of Use, Privacy Policy, "Who runs this app", "Partnerships"**: replace the `[PLACEHOLDER]` text in Admin → App content. Have a lawyer write or check the legal pages.
 7. **A native Vietnamese speaker to read `mobile/src/locales/vi.ts`.** I wrote it to sound like a friend, not a brochure, but it deserves a local's ear before launch.
 
+## Switch on password reset emails
+
+"Forgot your password?" emails a 6-digit code (15 minutes, 5 tries, at most 3 codes an hour, and it never reveals whether an email has an account). It needs an email service; until it has one, the live app says reset isn't switched on yet.
+
+1. Sign up at [resend.com](https://resend.com) (free for 3,000 emails a month).
+2. **Domains → Add domain**: add the domain you'll send from (e.g. `tastr.vn`) and add the DNS records it shows you at your domain registrar. Until a domain is verified, Resend only delivers to your own email address, which is fine for testing.
+3. **API Keys → Create API key** (sending access is enough).
+4. In Railway, open the **tastr-api** service → **Variables** and add `RESEND_API_KEY` (the key) and `EMAIL_FROM` (e.g. `Tastr <hello@tastr.vn>`). Railway restarts the server with them.
+
+Paste the key straight into Railway yourself. It's a password, so don't send it to anyone, me included.
+
 ## Not built yet (deliberately left for the next round)
 
 Being straight about the gaps:
 
-- **Password reset and email verification** need an email-sending service (e.g. Resend or Postmark). Until then, someone who forgets their password can't get back in by themselves.
+- **Email verification** at sign-up (password reset is built; see above).
 - **Push notifications.** The notification settings are saved, but nothing sends notifications yet.
 - **The business side** has its database tables but no screens or endpoints yet (claim a page, reply to reviews, update hours).
 - **Photo storage** is a disk volume on the server. Fine for launch; at real scale, move photos to cloud storage (S3 / Cloudflare R2) behind a CDN.

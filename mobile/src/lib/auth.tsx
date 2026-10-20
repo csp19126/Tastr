@@ -15,6 +15,7 @@ type AuthState = {
   ready: boolean;
   user: Me | null;
   signInEmail(email: string, password: string): Promise<void>;
+  resetPassword(email: string, code: string, password: string): Promise<void>;
   register(email: string, password: string, displayName: string): Promise<void>;
   signInGoogle(): Promise<void>;
   signInApple(): Promise<void>;
@@ -100,6 +101,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       googleAvailable: !!google,
       appleAvailable,
       setUser,
+      async resetPassword(email, code, password) {
+        await finish(await post('/auth/reset', { email, code, password }));
+      },
       async signInEmail(email, password) {
         await finish(await post('/auth/login', { email, password }));
       },

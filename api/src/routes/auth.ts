@@ -8,6 +8,7 @@ import { checkPassword, createSession, endSession, hashPassword, requireUser, ro
 import { config } from '../config';
 import { one, q, tx, type Db } from '../db';
 import { HttpError, ipLimiter, parse } from '../http';
+import { mailer, resetCodeEmail } from '../mailer';
 import { privateUser } from './me';
 
 export const authRoutes = Router();
@@ -115,4 +116,86 @@ authRoutes.post('/logout', async (req, res) => {
   requireUser(req);
   await endSession(req.token!);
   res.json({ ok: true });
+});
+
+// ---------------------------------------------------------------- forgot password
+
+const RESET_MINUTES = 15;
+const RESET_TRIES = 5;
+const RESETS_PER_HOUR = 3;
+
+const resetHash = (userId: number, code: string) => crypto.createHash('sha256').update(`${userId}:${code}`).digest('hex');
+
+/**
+ * Emails a 6-digit code. Always answers "ok" whether or not the email has an account,
+ * so nobody can use this to find out who's signed up.
+ */
+authRoutes.post('/forgot', limiter, async (req, res) => {
+  const { email } = parse(z.object({ email: z.string().trim().max(200) }), req.body);
+  if (!mailer.configured()) throw new HttpError(503, 'email_not_configured');
+  const u = await one('SELECT id, display_name, language FROM users WHERE email = $1 AND banned_at IS NULL', [email.toLowerCase()]);
+  if (!u) {
+    res.json({ ok: true });
+    return;
+  }
+  const recent = await one<{ n: number }>(
+    `SELECT count(*)::int AS n FROM password_resets WHERE user_id = $1 AND created_at > now() - interval '1 hour'`,
+    [u.id],
+  );
+  if (recent!.n >= RESETS_PER_HOUR) {
+    res.json({ ok: true });
+    return;
+  }
+  const code = String(crypto.randomInt(0, 1_000_000)).padStart(6, '0');
+  const row = await tx(async (db) => {
+    // Only the newest code works.
+    await q('UPDATE password_resets SET used_at = now() WHERE user_id = $1 AND used_at IS NULL', [u.id], db);
+    return one<{ id: number }>(
+      `INSERT INTO password_resets (user_id, code_hash, expires_at) VALUES ($1, $2, now() + make_interval(mins => $3)) RETURNING id`,
+      [u.id, resetHash(u.id, code), RESET_MINUTES],
+      db,
+    );
+  });
+  try {
+    await mailer.send(resetCodeEmail(email.toLowerCase(), u.display_name, code, u.language));
+  } catch (e) {
+    await q('DELETE FROM password_resets WHERE id = $1', [row!.id]);
+    throw e;
+  }
+  res.json({ ok: true });
+});
+
+/** Code + new password: sets it, signs out every other device, and signs this one in. */
+authRoutes.post('/reset', limiter, async (req, res) => {
+  const b = parse(
+    z.object({
+      email: z.string().trim().max(200),
+      code: z.string().trim().regex(/^\d{6}$/),
+      password: z.string().min(8).max(200),
+    }),
+    req.body,
+  );
+  const u = await one<{ id: number }>('SELECT id FROM users WHERE email = $1 AND banned_at IS NULL', [b.email.toLowerCase()]);
+  if (!u) throw new HttpError(400, 'bad_code');
+  const hash = await hashPassword(b.password);
+  const out = await tx(async (db) => {
+    const r = await one(
+      `SELECT * FROM password_resets WHERE user_id = $1 AND used_at IS NULL AND expires_at > now()
+       ORDER BY id DESC LIMIT 1 FOR UPDATE`,
+      [u.id],
+      db,
+    );
+    if (!r || r.attempts >= RESET_TRIES) return null;
+    const ok = crypto.timingSafeEqual(Buffer.from(r.code_hash, 'hex'), Buffer.from(resetHash(u.id, b.code), 'hex'));
+    if (!ok) {
+      await q('UPDATE password_resets SET attempts = attempts + 1 WHERE id = $1', [r.id], db);
+      return null;
+    }
+    await q('UPDATE password_resets SET used_at = now() WHERE id = $1', [r.id], db);
+    await q('UPDATE users SET password_hash = $2 WHERE id = $1', [u.id, hash], db);
+    await q('DELETE FROM sessions WHERE user_id = $1', [u.id], db);
+    return signedIn(u.id, db);
+  });
+  if (!out) throw new HttpError(400, 'bad_code');
+  res.json(out);
 });
