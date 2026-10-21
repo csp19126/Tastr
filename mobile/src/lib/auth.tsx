@@ -5,6 +5,7 @@ import { Platform } from 'react-native';
 
 import { del, get, patch, post, setApiToken, setOnUnauthorized } from './api';
 import { GOOGLE } from './config';
+import { facebookSignOut } from './facebook';
 import i18n, { type Lang } from './i18n';
 import { loadToken, saveToken } from './secure';
 import type { Me } from './types';
@@ -17,8 +18,13 @@ type AuthState = {
   signInEmail(email: string, password: string): Promise<void>;
   resetPassword(email: string, code: string, password: string): Promise<void>;
   register(email: string, password: string, displayName: string): Promise<void>;
-  signInGoogle(): Promise<void>;
-  signInApple(): Promise<void>;
+  /** false if the person backed out. */
+  signInGoogle(): Promise<boolean>;
+  /** The web version's Google button hands over Google's token itself. */
+  signInGoogleIdToken(idToken: string): Promise<void>;
+  /** What useFacebook().credential() gave. */
+  signInFacebook(credential: Record<string, string>): Promise<void>;
+  signInApple(): Promise<boolean>;
   signOut(): Promise<void>;
   deleteAccount(): Promise<void>;
   updateMe(changes: Partial<Omit<Me, 'notifications'>> & { notifications?: Partial<Me['notifications']> }): Promise<void>;
@@ -111,33 +117,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await finish(await post('/auth/register', { email, password, displayName, language: i18n.language }));
       },
       async signInGoogle() {
-        if (!google) return;
+        if (!google) return false;
         await google.GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
         const res = await google.GoogleSignin.signIn();
-        if (!google.isSuccessResponse(res) || !res.data.idToken) return; // cancelled
+        if (!google.isSuccessResponse(res) || !res.data.idToken) return false; // cancelled
         await finish(await post('/auth/google', { idToken: res.data.idToken, language: i18n.language }));
+        return true;
+      },
+      async signInGoogleIdToken(idToken) {
+        await finish(await post('/auth/google', { idToken, language: i18n.language }));
+      },
+      async signInFacebook(credential) {
+        await finish(await post('/auth/facebook', { ...credential, language: i18n.language }));
       },
       async signInApple() {
         try {
           const cred = await AppleAuthentication.signInAsync({
             requestedScopes: [AppleAuthentication.AppleAuthenticationScope.FULL_NAME, AppleAuthentication.AppleAuthenticationScope.EMAIL],
           });
-          if (!cred.identityToken) return;
+          if (!cred.identityToken) return false;
           const fullName = [cred.fullName?.givenName, cred.fullName?.familyName].filter(Boolean).join(' ') || undefined;
           await finish(await post('/auth/apple', { identityToken: cred.identityToken, fullName, language: i18n.language }));
+          return true;
         } catch (e: any) {
-          if (e?.code === 'ERR_REQUEST_CANCELED') return;
+          if (e?.code === 'ERR_REQUEST_CANCELED') return false;
           throw e;
         }
       },
       async signOut() {
         await post('/auth/logout').catch(() => {});
         if (google) await google.GoogleSignin.signOut().catch(() => {});
+        facebookSignOut();
         await signOutLocal();
       },
       async deleteAccount() {
         await del('/me');
         if (google) await google.GoogleSignin.signOut().catch(() => {});
+        facebookSignOut();
         await signOutLocal();
       },
       async updateMe(changes) {

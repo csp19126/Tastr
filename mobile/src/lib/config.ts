@@ -27,4 +27,10 @@ export const GOOGLE = {
   iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ?? '',
 };
 
+/** Built into the phone apps (Facebook's own code needs it at build time). The web version asks the server instead. */
+export const FACEBOOK_APP_ID = (Constants.expoConfig?.extra?.facebookAppId as string | undefined) ?? '';
+
+/** iPhones use Apple Maps unless the build has a Google Maps key. Android always uses Google Maps. */
+export const IOS_GOOGLE_MAPS = !!Constants.expoConfig?.extra?.iosGoogleMaps;
+
 export const APP_VERSION = Constants.expoConfig?.version ?? '0.0.0';

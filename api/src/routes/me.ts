@@ -25,7 +25,7 @@ export async function privateUser(id: number, db: Db = pool) {
     notifications: { follows: u.notify_follows, comments: u.notify_comments, helpful: u.notify_helpful },
     role: u.role,
     banned: !!u.banned_at,
-    signInMethods: [u.password_hash && 'email', u.google_sub && 'google', u.apple_sub && 'apple'].filter(Boolean),
+    signInMethods: [u.password_hash && 'email', u.google_sub && 'google', u.apple_sub && 'apple', u.facebook_sub && 'facebook'].filter(Boolean),
     createdAt: u.created_at,
   };
 }

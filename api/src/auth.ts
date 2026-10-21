@@ -105,6 +105,19 @@ export type SocialProfile = { sub: string; email: string | null; emailVerified: 
 
 const googleKeys = createRemoteJWKSet(new URL('https://www.googleapis.com/oauth2/v3/certs'));
 const appleKeys = createRemoteJWKSet(new URL('https://appleid.apple.com/auth/keys'));
+const facebookKeys = createRemoteJWKSet(new URL('https://www.facebook.com/.well-known/oauth/openid/jwks/'));
+
+/** What the phone or browser sends after "Continue with Facebook". */
+export type FacebookCredential =
+  | { accessToken: string } // Android and the web
+  | { authenticationToken: string; nonce: string }; // iPhone ("Limited Login")
+
+async function graph(path: string, params: Record<string, string>) {
+  const res = await fetch(`https://graph.facebook.com/${path}?${new URLSearchParams(params)}`).catch(() => null);
+  const body: any = await res?.json().catch(() => null);
+  if (!res || !body) throw new HttpError(502, 'facebook_unreachable');
+  return { ok: res.ok, body };
+}
 
 const truthy = (v: unknown) => v === true || v === 'true';
 
@@ -139,5 +152,34 @@ export const socialVerifier = {
       emailVerified: truthy(payload.email_verified),
       name: null,
     };
+  },
+  /**
+   * Facebook emails aren't guaranteed to be confirmed, so a Facebook sign-in never comes with an
+   * email: it can't be used to get into an account someone made with that address.
+   */
+  async facebook(cred: FacebookCredential): Promise<SocialProfile> {
+    if (!config.facebookAppId) throw new HttpError(501, 'facebook_not_configured');
+    if ('authenticationToken' in cred) {
+      const { payload } = await jwtVerify(cred.authenticationToken, facebookKeys, {
+        issuer: ['https://www.facebook.com', 'https://facebook.com'],
+        audience: config.facebookAppId,
+      }).catch(() => {
+        throw new HttpError(401, 'bad_token');
+      });
+      if (payload.nonce !== cred.nonce) throw new HttpError(401, 'bad_token');
+      return { sub: String(payload.sub), email: null, emailVerified: false, name: typeof payload.name === 'string' ? payload.name : null };
+    }
+    if (!config.facebookAppSecret) throw new HttpError(501, 'facebook_not_configured');
+    // Is this token real, and was it given to Tastr (not to some other app)?
+    const check = await graph('debug_token', {
+      input_token: cred.accessToken,
+      access_token: `${config.facebookAppId}|${config.facebookAppSecret}`,
+    });
+    const d = check.body?.data;
+    if (!check.ok || !d?.is_valid || String(d.app_id) !== config.facebookAppId || !d.user_id) throw new HttpError(401, 'bad_token');
+    const proof = crypto.createHmac('sha256', config.facebookAppSecret).update(cred.accessToken).digest('hex');
+    const me = await graph('me', { fields: 'id,name', access_token: cred.accessToken, appsecret_proof: proof });
+    if (!me.ok || String(me.body.id) !== String(d.user_id)) throw new HttpError(401, 'bad_token');
+    return { sub: String(d.user_id), email: null, emailVerified: false, name: typeof me.body.name === 'string' ? me.body.name : null };
   },
 };

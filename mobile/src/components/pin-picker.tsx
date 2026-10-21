@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
-import MapView from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
 
+import { IOS_GOOGLE_MAPS } from '@/lib/config';
 import type { Point } from '@/lib/location';
 import { radius } from '@/lib/theme';
 
@@ -27,6 +28,7 @@ export function PinPicker({ value, onChange, height = 260 }: { value: Point; onC
     <View style={{ height, borderRadius: radius.l, overflow: 'hidden' }}>
       <MapView
         ref={map}
+        provider={IOS_GOOGLE_MAPS ? PROVIDER_GOOGLE : undefined}
         style={{ flex: 1 }}
         initialRegion={initial}
         showsUserLocation

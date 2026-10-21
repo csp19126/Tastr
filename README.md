@@ -20,7 +20,7 @@ English and Tiếng Việt from day one. iPhone, Android and (for testing) web, 
 
 ## What works today
 
-**Accounts.** Sign up with email. Google and Apple sign-in are built and checked by the server, and switch on once you've created the Google/Apple credentials (see "What I need from you"). Profile: name, photo, home city, bio, language, currency.
+**Accounts.** Sign up with email, or **Continue with Google, Facebook or Apple** (Apple on iPhones). All three are built and checked by the server, and each button appears by itself once you've set it up (see "Switch on Google, Facebook and Google Maps" below). Until then the buttons simply aren't shown. Profile: name, photo, home city, bio, language, currency.
 
 **Reviews.** Up to 10 photos (camera or gallery), shrunk on the phone before upload. GPS and camera details are stripped twice: once on the phone, and again on the server, which re-encodes every photo (there's an automated test proving the location data is gone). Overall stars 1–5 ("Don't bother" → "Drop everything"), quick ratings for Taste, Value, Service, Vibe and Cleanliness, each with its own question ("Would you queue for this?", "Worth the price?", "Would you bring your mum here?"). Price paid in VND (or your currency) and a price-per-person band. The 11 quick tags. Dish notes with their own photo and a thumbs up or down. **Drafts save themselves on the phone as you type.** If the signal drops when you hit Post, nothing is lost: the review waits in the Review tab, and photos that already went up aren't sent twice.
 
@@ -28,7 +28,7 @@ English and Tiếng Việt from day one. iPhone, Android and (for testing) web, 
 
 **Places.** Anyone can add a place by dragging the map until the pin sits on the stall: no website or address needed. Opening hours, phone and Zalo are optional ("better blank than wrong"). If someone adds a place that's already there, the app asks "Is it this one?". Place pages show photos, average stars and sub-ratings, price band, tags, opening hours with "open now", **popular dishes** (built from everyone's dish notes), directions, call, Zalo and the reviews.
 
-**Discover.** List and map of places near you, closest first. Filters: category, price, open now, star rating, tags, distance. Search by place name, dish ("bún chả", "pizza") or neighbourhood, **with or without Vietnamese accents**: "banh mi" finds "Bánh Mì", "com ga" finds "Cơm Gà".
+**Discover.** List and map of places near you (Google Maps once its key is in; until then iPhones show Apple Maps and the web version a plain OpenStreetMap), closest first. Filters: category, price, open now, star rating, tags, distance. Search by place name, dish ("bún chả", "pizza") or neighbourhood, **with or without Vietnamese accents**: "banh mi" finds "Bánh Mì", "com ga" finds "Cơm Gà".
 
 **Lists.** Everyone starts with "Want to try" and "Date night"; make as many of your own as you like. Switch a list to shared and send the link: it opens a simple web page for friends without the app.
 
@@ -108,11 +108,57 @@ These are things only you can do (accounts, money, legal), or decisions that are
 
 1. **Bundle ID**: a unique app ID like `com.yourcompany.tastr`. Set `APP_BUNDLE_ID` (or edit `mobile/app.config.ts`). It can't change after the first store upload.
 2. **Apple Developer account** (US$99/year) and **Google Play Console** (US$25 once).
-3. **Google sign-in**: create OAuth client IDs in Google Cloud (Web, iOS, Android). Put them in `GOOGLE_CLIENT_IDS` on the server, `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` / `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` and `GOOGLE_IOS_URL_SCHEME` for the app build.
-4. **Apple sign-in**: put your bundle ID in `APPLE_BUNDLE_IDS` on the server. (To test it in Expo Go, add `host.exp.Exponent` too.)
-5. **Google Maps key for Android store builds** (`GOOGLE_MAPS_ANDROID_API_KEY`). iPhones use Apple Maps and need nothing; Expo Go needs nothing.
+3. **Google, Facebook and Google Maps**: see the next section. The web version only needs Railway variables; the phone apps also need them at build time.
+4. **Apple sign-in**: put your bundle ID in `APPLE_BUNDLE_IDS` on the server. (To test it in Expo Go, add `host.exp.Exponent` too.) Apple insists on this: an iPhone app that offers Google or Facebook sign-in must offer Sign in with Apple too, which it does.
+5. **Google Maps keys for the phone apps** (`GOOGLE_MAPS_ANDROID_API_KEY` is required for Android store builds; `GOOGLE_MAPS_IOS_API_KEY` is optional and switches iPhones from Apple Maps to Google Maps).
 6. **Terms of Use, Privacy Policy, "Who runs this app", "Partnerships"**: replace the `[PLACEHOLDER]` text in Admin → App content. Have a lawyer write or check the legal pages.
 7. **A native Vietnamese speaker to read `mobile/src/locales/vi.ts`.** I wrote it to sound like a friend, not a brochure, but it deserves a local's ear before launch.
+
+## Switch on Google, Facebook and Google Maps
+
+Each one turns on by itself once its setting is in Railway (**tastr-api → Variables**). Railway restarts the server; reload the app and the button or map is there. Nothing breaks while they're off.
+
+Things marked **secret** are passwords: paste them straight into Railway yourself and never send them to anyone, me included. Everything else (IDs, browser map keys) ends up inside the app anyway, so they're not secret.
+
+### Google sign-in (web version)
+
+1. Go to [console.cloud.google.com](https://console.cloud.google.com), create a project called Tastr.
+2. **Google Auth Platform → Branding**: app name Tastr, your support email. **Audience**: External, then publish the app.
+3. **Clients → Create client → Web application**. Under **Authorised JavaScript origins** add `https://tastr-api-production.up.railway.app`. Create it and copy the **Client ID** (ends in `.apps.googleusercontent.com`).
+4. Railway variable: `GOOGLE_WEB_CLIENT_ID` = that Client ID.
+
+For the phone apps, also create an **iOS** and an **Android** client in the same place, add all the client IDs (comma-separated) to `GOOGLE_CLIENT_IDS`, and set `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`, `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` and `GOOGLE_IOS_URL_SCHEME` for the app build.
+
+### Facebook sign-in
+
+1. Go to [developers.facebook.com](https://developers.facebook.com) → **My Apps → Create app**, and pick the **Facebook Login** ("authenticate users") use case.
+2. **App settings → Basic**: copy the **App ID** and the **App Secret** (secret). Fill in:
+   - Privacy Policy URL: `https://tastr-api-production.up.railway.app/legal/privacy`
+   - Terms of Service URL: `https://tastr-api-production.up.railway.app/legal/terms`
+   - User data deletion: the same privacy page. Make sure your privacy policy says that **Settings → Delete my account** deletes everything.
+3. **Facebook Login → Settings**: switch on **Login with the JavaScript SDK**, and add `tastr-api-production.up.railway.app` to **Allowed Domains for the JavaScript SDK**.
+4. Switch the app from **Development** to **Live** (Facebook may ask for an app icon and category first). Tastr only asks Facebook for the person's name and profile, which doesn't need Facebook's app review.
+5. Railway variables: `FACEBOOK_APP_ID`, and `FACEBOOK_APP_SECRET` (secret).
+
+Tastr never takes the email address from Facebook (Facebook doesn't guarantee it's been confirmed), so nobody can use a Facebook account to get into someone else's Tastr account.
+
+For the phone apps, also copy **App settings → Advanced → Client token** and set `FACEBOOK_APP_ID` and `FACEBOOK_CLIENT_TOKEN` for the app build. Then add the Android and iOS platforms in the Facebook app's settings (package name / bundle ID).
+
+### Google Maps
+
+1. In the same Google Cloud project, open **Billing** and add a card. Google requires one even for free use.
+2. **APIs & Services → Library**: enable **Maps JavaScript API** (web version), plus **Maps SDK for Android** and **Maps SDK for iOS** for the phone apps.
+3. **APIs & Services → Credentials → Create credentials → API key**. Edit it:
+   - Application restrictions: **Websites**, add `https://tastr-api-production.up.railway.app/*`
+   - API restrictions: **Maps JavaScript API** only
+4. Railway variable: `GOOGLE_MAPS_WEB_KEY` = that key.
+5. Optional: **Google Maps Platform → Map management → Create Map ID** (JavaScript, Vector), then set `GOOGLE_MAPS_MAP_ID`. That gives the newer style of map pins; without it you get Google's classic pins.
+
+For the phone apps, make two more keys, one restricted to **Android apps** (package name plus SHA-1, which EAS shows you) and one to **iOS apps** (bundle ID). Set them as `GOOGLE_MAPS_ANDROID_API_KEY` and `GOOGLE_MAPS_IOS_API_KEY` for the build.
+
+**What it costs.** The maps inside the phone apps don't cost anything. The web version's map is free up to a monthly allowance (about 10,000 map loads a month on Google's current price list), then it's charged per load. Check Google's Maps pricing page and set a **budget alert** under Billing, so there are no surprises.
+
+If Google ever refuses the key, for example because the card expired, the web version quietly goes back to the plain OpenStreetMap map instead of breaking.
 
 ## Switch on password reset emails
 
@@ -139,7 +185,7 @@ Being straight about the gaps:
 
 | Command | What it does |
 |---|---|
-| `cd api && npm test` | 38 automated tests against a real PostgreSQL: sign-up, Google/Apple linking, photos losing their GPS data, reviews, limits, Vietnamese search, filters, lists and share links, feed, reports, bans, editable content, delete-my-account |
+| `cd api && npm test` | 52 automated tests against a real PostgreSQL: sign-up, Google/Apple/Facebook sign-in (including forged and wrong-app tokens), password reset, photos losing their GPS data, reviews, limits, Vietnamese search, filters, lists and share links, feed, reports, bans, editable content, delete-my-account |
 | `cd api && npm run check` | Typecheck the server |
 | `cd mobile && npx tsc --noEmit` | Typecheck the app |
 | `cd mobile && npx expo lint` | Code-quality rules |

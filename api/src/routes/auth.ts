@@ -4,7 +4,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 
 import { CITY_IDS, LANGUAGES } from '../../../shared';
-import { checkPassword, createSession, endSession, hashPassword, requireUser, roleFor, socialVerifier, type SocialProfile } from '../auth';
+import { checkPassword, createSession, endSession, hashPassword, requireUser, roleFor, socialVerifier, type FacebookCredential, type SocialProfile } from '../auth';
 import { config } from '../config';
 import { one, q, tx, type Db } from '../db';
 import { HttpError, ipLimiter, parse } from '../http';
@@ -68,12 +68,14 @@ authRoutes.post('/login', limiter, async (req, res) => {
   res.json(await signedIn(u.id));
 });
 
+const SUB_COLUMN = { google: 'google_sub', apple: 'apple_sub', facebook: 'facebook_sub' } as const;
+
 /**
- * Same flow for Google and Apple: find the account by provider id, else by verified email
+ * Same flow for Google, Apple and Facebook: find the account by provider id, else by verified email
  * (so someone who signed up with email can later tap "Continue with Google"), else create one.
  */
-async function socialSignIn(provider: 'google' | 'apple', p: SocialProfile, fallbackName: string, language: 'en' | 'vi') {
-  const col = provider === 'google' ? 'google_sub' : 'apple_sub';
+async function socialSignIn(provider: keyof typeof SUB_COLUMN, p: SocialProfile, fallbackName: string, language: 'en' | 'vi') {
+  const col = SUB_COLUMN[provider];
   return tx(async (db) => {
     let u = await one<{ id: number }>(`SELECT id FROM users WHERE ${col} = $1`, [p.sub], db);
     if (!u && p.email && p.emailVerified) {
@@ -110,6 +112,24 @@ authRoutes.post('/apple', limiter, async (req, res) => {
   );
   const profile = await socialVerifier.apple(body.identityToken);
   res.json(await socialSignIn('apple', profile, body.fullName ?? '', body.language));
+});
+
+authRoutes.post('/facebook', limiter, async (req, res) => {
+  const body = parse(
+    z.object({
+      accessToken: z.string().min(10).max(4000).optional(),
+      authenticationToken: z.string().min(10).max(8000).optional(),
+      nonce: z.string().min(8).max(200).optional(),
+      language: z.enum(LANGUAGES).default('en'),
+    }),
+    req.body,
+  );
+  let cred: FacebookCredential;
+  if (body.authenticationToken && body.nonce) cred = { authenticationToken: body.authenticationToken, nonce: body.nonce };
+  else if (body.accessToken) cred = { accessToken: body.accessToken };
+  else throw new HttpError(400, 'bad_token');
+  const profile = await socialVerifier.facebook(cred);
+  res.json(await socialSignIn('facebook', profile, '', body.language));
 });
 
 authRoutes.post('/logout', async (req, res) => {

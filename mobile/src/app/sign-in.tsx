@@ -5,15 +5,18 @@ import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
 import { errorText } from '@/components/errors';
+import { GoogleWebButton } from '@/components/google-web-button';
 import { Logo } from '@/components/states';
 import { Button, Field, Screen, T } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
+import { useFacebook } from '@/lib/facebook';
 import { space, useColors } from '@/lib/theme';
 
 export default function SignIn() {
   const { t } = useTranslation();
   const c = useColors();
   const auth = useAuth();
+  const facebook = useFacebook();
   const [mode, setMode] = useState<'choose' | 'login' | 'register'>('choose');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,11 +24,12 @@ export default function SignIn() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function run(fn: () => Promise<void>) {
+  /** fn resolves false when the person backed out of Google/Apple/Facebook: stay on this screen. */
+  async function run(fn: () => Promise<unknown>) {
     setBusy(true);
     setError(null);
     try {
-      await fn();
+      if ((await fn()) === false) return;
       if (router.canGoBack()) router.back();
       else router.replace('/');
     } catch (e) {
@@ -55,6 +59,25 @@ export default function SignIn() {
             />
           ) : null}
           {auth.googleAvailable ? <Button kind="secondary" icon="🇬" title={t('auth.withGoogle')} loading={busy} onPress={() => run(auth.signInGoogle)} /> : null}
+          <GoogleWebButton onIdToken={(idToken) => run(() => auth.signInGoogleIdToken(idToken))} />
+          {facebook.available ? (
+            <Button
+              testID="with-facebook"
+              kind="secondary"
+              icon="ⓕ"
+              title={t('auth.withFacebook')}
+              loading={busy}
+              onPress={() => {
+                // Opened right here in the tap: on the web, a pop-up opened later gets blocked.
+                const opening = facebook.credential();
+                run(async () => {
+                  const cred = await opening;
+                  if (!cred) return false;
+                  await auth.signInFacebook(cred);
+                });
+              }}
+            />
+          ) : null}
           <Button testID="with-email" title={t('auth.withEmail')} icon="✉️" onPress={() => setMode('register')} />
           <Button kind="ghost" title={t('auth.haveAccount')} onPress={() => setMode('login')} />
           <Button kind="ghost" title={t('auth.browseFirst')} onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} />

@@ -71,6 +71,16 @@ export function createApp() {
   api.use('/reports', reportRoutes);
   api.use('/admin', adminRoutes);
   api.use('/content', contentRoutes);
+  // What the web version needs to switch on Google/Facebook buttons and Google Maps. All public by design.
+  api.get('/config', (_req, res) => {
+    res.setHeader('Cache-Control', 'no-cache');
+    res.json({
+      googleWebClientId: config.googleWebClientId || null,
+      facebookAppId: config.facebookAppId && config.facebookAppSecret ? config.facebookAppId : null,
+      googleMapsKey: config.googleMapsWebKey || null,
+      googleMapsMapId: config.googleMapsMapId || null,
+    });
+  });
   api.use(() => {
     throw notFound();
   });

@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
-import MapView, { Callout, Marker } from 'react-native-maps';
+import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
+import { IOS_GOOGLE_MAPS } from '@/lib/config';
 import type { Point } from '@/lib/location';
 import { useColors } from '@/lib/theme';
 import type { PlaceCard } from '@/lib/types';
@@ -20,7 +21,7 @@ export function PlacesMap({ places, centre, showsUser }: { places: PlaceCard[]; 
     map.current?.animateToRegion({ latitude: centre.lat, longitude: centre.lng, latitudeDelta: 0.04, longitudeDelta: 0.04 }, 400);
   }, [centre.lat, centre.lng]);
   return (
-    <MapView ref={map} style={{ flex: 1 }} initialRegion={initial} showsUserLocation={showsUser} showsMyLocationButton>
+    <MapView ref={map} provider={IOS_GOOGLE_MAPS ? PROVIDER_GOOGLE : undefined} style={{ flex: 1 }} initialRegion={initial} showsUserLocation={showsUser} showsMyLocationButton>
       {places.map((p) => (
         <Marker key={p.id} coordinate={{ latitude: p.lat, longitude: p.lng }} pinColor={c.primary} tracksViewChanges={false}>
           <Callout onPress={() => router.push(`/place/${p.id}`)}>

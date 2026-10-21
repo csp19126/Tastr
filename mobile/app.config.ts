@@ -10,6 +10,16 @@ const BUNDLE_ID = process.env.APP_BUNDLE_ID ?? 'app.tastr.mobile';
 // Until it's set, the Google button simply doesn't appear.
 const googleIosUrlScheme = process.env.GOOGLE_IOS_URL_SCHEME;
 
+// Facebook sign-in needs the App ID and Client Token from developers.facebook.com (Settings → Basic / Advanced).
+// Until both are set, the Facebook button doesn't appear in the phone apps.
+const facebookAppId = process.env.FACEBOOK_APP_ID;
+const facebookClientToken = process.env.FACEBOOK_CLIENT_TOKEN;
+
+// Google Maps keys from Google Cloud. Android always uses Google Maps (store builds need the key);
+// iPhones use Apple Maps unless an iOS key is set.
+const mapsAndroidKey = process.env.GOOGLE_MAPS_ANDROID_API_KEY;
+const mapsIosKey = process.env.GOOGLE_MAPS_IOS_API_KEY;
+
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: NAME,
@@ -53,15 +63,40 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-location',
       { locationWhenInUsePermission: 'Tastr uses your location to find good places near you.' },
     ],
-    // Android store builds need a Google Maps key (Expo Go doesn't). iPhones use Apple Maps, no key needed.
-    ['react-native-maps', process.env.GOOGLE_MAPS_ANDROID_API_KEY ? { androidGoogleMapsApiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY } : {}],
+    [
+      'react-native-maps',
+      {
+        ...(mapsAndroidKey ? { androidGoogleMapsApiKey: mapsAndroidKey } : {}),
+        ...(mapsIosKey ? { iosGoogleMapsApiKey: mapsIosKey } : {}),
+      },
+    ],
     ...(googleIosUrlScheme
       ? [['@react-native-google-signin/google-signin', { iosUrlScheme: googleIosUrlScheme }] as [string, object]]
+      : []),
+    ...(facebookAppId && facebookClientToken
+      ? [
+          [
+            'react-native-fbsdk-next',
+            {
+              appID: facebookAppId,
+              clientToken: facebookClientToken,
+              displayName: NAME,
+              scheme: `fb${facebookAppId}`,
+              isAutoInitEnabled: true,
+              // Sign-in only: no ad tracking, no automatic app events, no "allow tracking?" pop-up.
+              autoLogAppEventsEnabled: false,
+              advertiserIDCollectionEnabled: false,
+              iosUserTrackingPermission: false,
+            },
+          ] as [string, object],
+        ]
       : []),
   ],
   experiments: { typedRoutes: false, reactCompiler: true },
   extra: {
     // Optional; the app works these out in development. Set for store builds.
     apiUrl: process.env.EXPO_PUBLIC_API_URL,
+    facebookAppId: facebookAppId && facebookClientToken ? facebookAppId : undefined,
+    iosGoogleMaps: !!mapsIosKey,
   },
 });
